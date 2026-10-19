@@ -470,7 +470,7 @@
     var vsrc = blobSrc(p.video);
     var media;
     if (vsrc) {
-      media = h('video', { class: 'sheet-video', src: vsrc + '#t=0.1', controls: true, playsinline: true, preload: 'metadata', poster: imgSrc(p.cover) ? p.cover : null });
+      media = h('video', { class: 'sheet-video', src: vsrc + '#t=0.1', controls: true, muted: true, playsinline: true, preload: 'metadata', poster: imgSrc(p.cover) ? p.cover : null });
     } else {
       media = h('div', { class: 'cover' }); applyCover(media, p);
     }
