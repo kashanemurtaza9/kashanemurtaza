@@ -106,6 +106,7 @@
     v = (v || '').trim();
     return /^(https:\/\/[^\s"'<>]+|\/media\/[A-Za-z0-9._\-\/]+)$/i.test(v) ? v : '';
   }
+  function resumeHref(v) { v = (v || '').trim(); return /^(https:\/\/[^\s"'<>]+|\/media\/[A-Za-z0-9._\-\/]+)$/i.test(v) ? v : ''; }
   function imgSrc(v) { return (typeof v === 'string' && (v.indexOf('data:image/') === 0 || /^(https:\/\/[^\s"'<>]+|\/media\/[A-Za-z0-9._\-\/]+)$/i.test(v))) ? v : ''; }
   /* Checks a pasted video link. Returns an error message, or '' when it can be used. */
   function checkVideoUrl(v) {
@@ -427,7 +428,8 @@
                 for (var i = 0; i < w.length; i += 11) lines.push(w.slice(i, i + 11).join(' '));
                 return h('p', null, lines.map(function (l) { return h('span', { class: 'l9', text: l }); }));
               }),
-              p.skills ? h('div', { class: 'about-skills' }, h('b', { text: 'Skills: ' }), p.skills) : null),
+              p.skills ? h('div', { class: 'about-skills' }, h('b', { text: 'Skills: ' }), p.skills) : null,
+              resumeHref(p.resumeUrl) ? h('a', { class: 'about-cta', href: resumeHref(p.resumeUrl), download: '', target: '_blank', rel: 'noopener' }, p.resumeLabel || 'Download resume', icon('down')) : null),
             h('div', { class: 'about-side' },
               photoEl,
               (!photoSrc && canEdit) ? h('p', { class: 'photo-hint', text: 'Only you see this note: add your photo in Dashboard, About me.' }) : null)),
@@ -902,6 +904,8 @@
         inp('p-tagline', 'tagline', 'Line under the name', 'For example: Technology · Operations · Growth.', true),
         area('p-about', 'about', 'About text', 'Leave a blank line between paragraphs. Lines break automatically after 11 words.', 8),
         inp('p-skills', 'skills', 'Skills line', 'Shown under the About text after "Skills:". Separate with commas.', true),
+        inp('p-resume', 'resumeUrl', 'Resume link (PDF)', 'The file the resume button downloads. Paste an https link, or a /media/... path on this site. Leave empty to hide the button.', true, 'text'),
+        inp('p-resume-label', 'resumeLabel', 'Resume button text', 'For example: Download resume, or Resume.'),
         photoField,
         xp
       ]);
