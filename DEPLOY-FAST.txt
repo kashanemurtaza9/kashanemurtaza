@@ -1,0 +1,13 @@
+FASTEST DEPLOY (about 1 minute)
+
+Your Vercel project "kashan-portfolio-site" already exists with the admin login and storage set up.
+
+1. Unzip this file.
+2. Open a terminal inside the kashan-portfolio folder.
+3. Run:
+     npx vercel link --project kashan-portfolio-site --yes
+     npx vercel --prod
+   (log in to Vercel when asked)
+
+Done. Website:   https://kashan-portfolio-site.vercel.app
+      Dashboard: https://kashan-portfolio-site.vercel.app/admin

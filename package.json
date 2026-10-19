@@ -1,0 +1,22 @@
+{
+  "name": "kashan-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Kashan's portfolio website with an admin dashboard and Postgres content storage.",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/dev-server.mjs",
+    "db:setup": "node scripts/db-setup.mjs",
+    "hash-password": "node scripts/hash-password.mjs",
+    "check": "node scripts/check-assets.mjs",
+    "test": "node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.2",
+    "pg": "^8.13.0"
+  }
+}
