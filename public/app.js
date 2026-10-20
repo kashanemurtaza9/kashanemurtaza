@@ -234,7 +234,8 @@
       h('nav', { class: 'links', 'aria-label': 'Main' },
         h('a', { href: '#services', text: state.profile.navServices }),
         h('a', { href: '#about', text: state.profile.navAbout }),
-        h('a', { href: '#experience', text: state.profile.navExperience })))), dock);
+        h('a', { href: '#experience', text: state.profile.navExperience }),
+        h('a', { href: '#contact', text: state.profile.navContact || 'Contact' })))), dock);
     return frag;
   }
 
@@ -819,10 +820,11 @@
     }
 
     if (which === 'nav') {
-      return panel('Task bar', 'The three links in the bar at the top of the site. Each one scrolls to its section.', [
+      return panel('Task bar', 'The four links in the bar at the top of the site. Each one scrolls to its section.', [
         inp('p-n1', 'navServices', 'Link 1 (goes to What I do)'),
         inp('p-n3', 'navAbout', 'Link 2 (goes to About me)'),
-        inp('p-n4', 'navExperience', 'Link 3 (goes to Experience)')
+        inp('p-n4', 'navExperience', 'Link 3 (goes to Experience)'),
+        inp('p-n5', 'navContact', 'Link 4 (goes to Let\'s work together)')
       ]);
     }
 
