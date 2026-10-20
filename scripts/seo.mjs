@@ -53,6 +53,5 @@ swap('<!--seo:ld-->', '<!--/seo:ld-->', '<script type="application/ld+json">' + 
 writeFileSync('public/index.html', html);
 
 writeFileSync('public/robots.txt', `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/auth/\n\nSitemap: ${SITE}/sitemap.xml\n`);
-const today = new Date().toISOString().slice(0, 10);
-writeFileSync('public/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE}/</loc><lastmod>${today}</lastmod><priority>1.0</priority></url>\n  <url><loc>${SITE}/work</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>\n${projects.map((x) => `  <url><loc>${SITE}/work/${slugify(x.title)}</loc><lastmod>${today}</lastmod><priority>0.7</priority></url>\n`).join('')}</urlset>\n`);
+// sitemap.xml is served by api/work.js from the live content (see vercel.json).
 console.log('seo: index.html content, JSON-LD, robots.txt, sitemap.xml written');

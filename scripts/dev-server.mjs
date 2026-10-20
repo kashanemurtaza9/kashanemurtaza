@@ -12,6 +12,7 @@ const ROUTES = { '/api/content': 'api/content.js', '/api/auth/login': 'api/auth/
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
+  if (url.pathname === '/sitemap.xml') { const mod = await import(pathToFileURL(join(process.cwd(), 'api/work.js')).href); req.query = { sitemap: '1' }; return mod.default(req, res); }
   const wm = /^\/work(?:\/([\w-]+))?\/?$/.exec(url.pathname);
   if (wm) { const mod = await import(pathToFileURL(join(process.cwd(), 'api/work.js')).href); req.query = { slug: wm[1] || '' }; return mod.default(req, res); }
   if (ROUTES[url.pathname]) {

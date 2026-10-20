@@ -20,6 +20,10 @@
     {
       "source": "/work/:slug",
       "destination": "/api/work?slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/work?sitemap=1"
     }
   ],
   "functions": {

@@ -38,7 +38,7 @@ dl{margin:0;border-top:1px solid var(--line)}dl div{display:flex;justify-content
 .btn:hover{background:rgba(31,185,128,.14)}.row{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin:24px 0 64px}
 .card{display:block;border:1px solid var(--line);color:var(--fg);text-decoration:none;background:var(--bg2)}.card:hover{border-color:var(--accent)}
-.card img{aspect-ratio:4/3;object-fit:cover;width:100%}.card div{padding:16px}.card h3{margin:0 0 4px;font-size:18px}.card p{margin:0;color:var(--muted);font-size:14px}
+.card img,.card .ph{aspect-ratio:4/3;object-fit:cover;width:100%;height:auto;display:block}.card .ph{display:grid;place-items:center;font-size:64px;font-weight:700;color:var(--accent);background:linear-gradient(135deg,#0c4a35,#050806)}.card div{padding:16px}.card h3{margin:0 0 4px;font-size:18px}.card p{margin:0;color:var(--muted);font-size:14px}
 .next{border-top:1px solid var(--line);margin-top:56px;padding:32px 0 64px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px}footer .wrap{padding:24px 16px}
 `;
@@ -107,7 +107,7 @@ function indexPage(s, list) {
     hasPart: list.map((x) => ({ '@type': 'CreativeWork', name: x.title, url: `${SITE}/work/${slugify(x.title)}` })) };
   const body = `<p class="eyebrow">Case studies</p><h1>Selected <em>work</em></h1>
 <p class="lede">${esc(p.intro || '')}</p>
-<div class="cards">${list.map((x) => `<a class="card" href="/work/${slugify(x.title)}">${okUrl(x.cover) ? `<img src="${esc(x.cover)}" alt="${esc(x.title)}" loading="lazy" width="800" height="600">` : ''}<div><h3>${esc(x.title)}</h3><p>${esc([x.role || x.category, x.year].filter(Boolean).join(' · '))}</p></div></a>`).join('')}</div>`;
+<div class="cards">${list.map((x) => `<a class="card" href="/work/${slugify(x.title)}">${okUrl(x.cover) ? `<img src="${esc(x.cover)}" alt="${esc(x.title)}" loading="lazy" width="800" height="600">` : `<span class="ph" aria-hidden="true">${esc(String(x.title).slice(0, 1))}</span>`}<div><h3>${esc(x.title)}</h3><p>${esc([x.role || x.category, x.year].filter(Boolean).join(' · '))}</p></div></a>`).join('')}</div>`;
   return shell({ title, desc, canonical, image: '', ld, body });
 }
 
@@ -115,6 +115,15 @@ export default async function handler(req, res) {
   try {
     const s = await loadState(req);
     const list = ((s && s.projects) || []).filter((x) => x.status === 'published');
+    if (req.query && req.query.sitemap) {
+      const today = new Date().toISOString().slice(0, 10);
+      const urls = ['/', '/work', ...list.map((x) => '/work/' + slugify(x.title))];
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+      return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + urls.map((u, i) => `  <url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod><priority>${i === 0 ? '1.0' : i === 1 ? '0.8' : '0.7'}</priority></url>`).join('\n') + '\n</urlset>\n');
+    }
     const slug = String((req.query && req.query.slug) || '').toLowerCase();
     let html, status = 200;
     if (!slug) html = indexPage(s || {}, list);
