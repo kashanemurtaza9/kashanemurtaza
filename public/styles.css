@@ -441,3 +441,6 @@ html:not(.mobile) .links a { font-size: 14px; letter-spacing: 0.02em; }
 html:not(.mobile) .nav.over { margin-bottom: -59px; }
 html:not(.mobile) .nav.over + main .hero, html:not(.mobile) .nav.over ~ * .hero { padding-top: calc(clamp(64px, calc(10 * var(--vw)), 128px) + 59px); }
 html:not(.mobile) #services, html:not(.mobile) #work, html:not(.mobile) #about, html:not(.mobile) #experience, html:not(.mobile) #contact { scroll-margin-top: 64px; }
+/* Hero "Explore Projects": transparent with a green outline. */
+.hero .btn.hero-cta, .hero.has-video .btn.hero-cta { background: transparent; color: var(--fg); border: 1.5px solid var(--accent); }
+.hero .btn.hero-cta:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 14%, transparent); opacity: 1; }

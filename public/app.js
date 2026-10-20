@@ -396,7 +396,7 @@
             h('p', { class: 'eyebrow mono' }, h('b', { text: p.name }), h('span', { text: '/' }), h('span', { text: p.title })),
             h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: p.headlineA })), h('span', null, h('span', { class: 'ln', text: p.headlineB })), h('span', null, h('span', { class: 'ln' }, h('em', { text: p.headlineEm })))),
             h('p', { class: 'lede', text: p.intro }),
-            (p.heroButton === undefined ? 'Explore Projects' : p.heroButton) ? h('div', { class: 'actions' }, h('a', { class: 'btn', href: '#work' }, (p.heroButton === undefined ? 'Explore Projects' : p.heroButton), icon('down'))) : null),
+            (p.heroButton === undefined ? 'Explore Projects' : p.heroButton) ? h('div', { class: 'actions' }, h('a', { class: 'btn hero-cta', href: '#work' }, (p.heroButton === undefined ? 'Explore Projects' : p.heroButton), icon('down'))) : null),
           h('div', { class: 'hero-meta mono' },
             h('span', { text: p.location }),
             heroToggle,
