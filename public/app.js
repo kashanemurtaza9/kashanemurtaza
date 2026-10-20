@@ -895,9 +895,12 @@
           h('input', { type: 'text', value: x.org, 'aria-label': 'Organisation', placeholder: 'Organisation', oninput: function (e) { x.org = e.target.value; markDirty(); } }),
           h('input', { type: 'text', value: x.role, 'aria-label': 'Role', placeholder: 'Role', oninput: function (e) { x.role = e.target.value; markDirty(); } }),
           h('input', { type: 'text', value: x.period, 'aria-label': 'Period', placeholder: 'Period', oninput: function (e) { x.period = e.target.value; markDirty(); } }),
-          h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Remove ' + (x.org || 'role'), onclick: function () { p.experience.splice(i, 1); markDirty(); render(); } }, icon('trash'))));
+          h('div', { style: 'display:flex;gap:6px' },
+            h('button', { class: 'icon-btn', type: 'button', disabled: i === 0, 'aria-label': 'Move ' + (x.org || 'role') + ' up', title: 'Move up', onclick: function () { p.experience.splice(i - 1, 0, p.experience.splice(i, 1)[0]); markDirty(); render(); } }, icon('up')),
+            h('button', { class: 'icon-btn', type: 'button', disabled: i === p.experience.length - 1, 'aria-label': 'Move ' + (x.org || 'role') + ' down', title: 'Move down', onclick: function () { p.experience.splice(i + 1, 0, p.experience.splice(i, 1)[0]); markDirty(); render(); } }, icon('down')),
+            h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Remove ' + (x.org || 'role'), onclick: function () { p.experience.splice(i, 1); markDirty(); render(); } }, icon('trash')))));
       });
-      xp.append(h('div', null, h('button', { class: 'btn ghost small', type: 'button', onclick: function () { p.experience.push({ org: '', role: '', period: '' }); markDirty(); render(); } }, icon('plus'), 'Add role')));
+      xp.append(h('div', null, h('button', { class: 'btn ghost small', type: 'button', onclick: function () { p.experience.push({ org: '', role: '', period: '' }); markDirty(); render(); } }, icon('plus'), 'Add role'), ' ', h('button', { class: 'btn ghost small', type: 'button', onclick: function () { p.experience.unshift({ org: '', role: '', period: '' }); markDirty(); render(); } }, icon('plus'), 'Add role at top')));
       return panel('About me', 'The dark About section: heading, name, line under the name, text, skills, photo and experience.', [
         inp('p-ah', 'aboutHeading', 'Section heading'),
         inp('p-fname', 'fullName', 'Full name (About heading)'),
