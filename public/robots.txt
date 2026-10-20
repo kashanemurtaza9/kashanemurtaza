@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /api/
+Disallow: /api/auth/
 
 Sitemap: https://kashanemurtaza-portfolio.vercel.app/sitemap.xml

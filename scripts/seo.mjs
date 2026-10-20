@@ -50,7 +50,7 @@ swap('<!--seo:content-->', '<!--/seo:content-->', body);
 swap('<!--seo:ld-->', '<!--/seo:ld-->', '<script type="application/ld+json">' + JSON.stringify(ld).replace(/</g, '\\u003c') + '</script>');
 writeFileSync('public/index.html', html);
 
-writeFileSync('public/robots.txt', `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: ${SITE}/sitemap.xml\n`);
+writeFileSync('public/robots.txt', `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/auth/\n\nSitemap: ${SITE}/sitemap.xml\n`);
 const today = new Date().toISOString().slice(0, 10);
 writeFileSync('public/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE}/</loc><lastmod>${today}</lastmod><priority>1.0</priority></url>\n</urlset>\n`);
 console.log('seo: index.html content, JSON-LD, robots.txt, sitemap.xml written');
