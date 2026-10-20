@@ -233,7 +233,6 @@
     frag.append(h('header', { class: 'nav' + (mode === 'site' ? ' over' : '') }, h('div', { class: 'wrap nav-in' },
       h('nav', { class: 'links', 'aria-label': 'Main' },
         h('a', { href: '#services', text: state.profile.navServices }),
-        h('a', { href: '#work', text: state.profile.navProjects }),
         h('a', { href: '#about', text: state.profile.navAbout }),
         h('a', { href: '#experience', text: state.profile.navExperience })))), dock);
     return frag;
@@ -396,7 +395,7 @@
             h('p', { class: 'eyebrow mono' }, h('b', { text: p.name }), h('span', { text: '/' }), h('span', { text: p.title })),
             h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: p.headlineA })), h('span', null, h('span', { class: 'ln', text: p.headlineB })), h('span', null, h('span', { class: 'ln' }, h('em', { text: p.headlineEm })))),
             h('p', { class: 'lede', text: p.intro }),
-            null),
+            (p.heroButton === undefined ? 'Explore Projects' : p.heroButton) ? h('div', { class: 'actions' }, h('a', { class: 'btn', href: '#work' }, (p.heroButton === undefined ? 'Explore Projects' : p.heroButton), icon('down'))) : null),
           h('div', { class: 'hero-meta mono' },
             h('span', { text: p.location }),
             heroToggle,
@@ -820,11 +819,10 @@
     }
 
     if (which === 'nav') {
-      return panel('Task bar', 'The four links in the bar at the top of the site. Each one scrolls to its section.', [
+      return panel('Task bar', 'The three links in the bar at the top of the site. Each one scrolls to its section.', [
         inp('p-n1', 'navServices', 'Link 1 (goes to What I do)'),
-        inp('p-n2', 'navProjects', 'Link 2 (goes to Projects)'),
-        inp('p-n3', 'navAbout', 'Link 3 (goes to About me)'),
-        inp('p-n4', 'navExperience', 'Link 4 (goes to Experience)')
+        inp('p-n3', 'navAbout', 'Link 2 (goes to About me)'),
+        inp('p-n4', 'navExperience', 'Link 3 (goes to Experience)')
       ]);
     }
 
@@ -877,6 +875,7 @@
         area('p-intro', 'intro', 'Hero paragraph', 'One or two sentences.', 3),
         inp('p-loc', 'location', 'Location', 'Shown at the bottom of the hero and in the footer.'),
         inp('p-scroll', 'scrollLabel', 'Scroll link text', 'The small link at the bottom right of the hero.'),
+        field('p-hbtn', 'Hero button text', h('input', { type: 'text', id: 'p-hbtn', value: p.heroButton === undefined ? 'Explore Projects' : p.heroButton, autocomplete: 'off', oninput: function (e) { p.heroButton = e.target.value; markDirty(); } }), 'The button under the intro that jumps to Projects. Leave empty to hide it.'),
         h('div', { class: 'field full' }, h('label', { class: 'mono', for: 'p-hv', text: 'Hero video link (loops behind the headline)' }),
           hvIn,
           h('div', { class: 'cover-edit' }, h('button', { class: 'btn ghost small', type: 'button', onclick: function () { p.heroVideo = ''; p.heroPoster = ''; hvIn.value = ''; hvErr.textContent = ''; paintPoster(); hvStatus.textContent = 'No hero video yet. The chrome ring shows instead.'; markDirty(); } }, 'Remove video')),
