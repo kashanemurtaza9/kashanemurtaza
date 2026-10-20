@@ -491,7 +491,7 @@
   }
 
   /* Case studies: /work lists every published project, /work/<project> shows one. Same nav, cursor, theme and motion as the home page. */
-  function homeBtn() { return h('div', { class: 'home-row' }, h('a', { class: 'btn hero-cta home-btn', href: '/' }, icon('back'), 'Home')); }
+  function homeBtn() { return h('div', { class: 'home-row' }, h('a', { class: 'btn hero-cta home-btn', href: '/' }, icon('back'), 'Back to home')); }
 
   function renderWork() {
     var p = state.profile;
@@ -518,10 +518,10 @@
         h('section', { class: 'hero work-hero', 'aria-label': p.workEyebrow || 'Case studies' },
           h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
           h('div', { class: 'hero-copy' },
-            homeBtn(),
             h('p', { class: 'eyebrow mono' }, h('b', { text: p.name }), h('span', { text: '/' }), h('span', { text: p.workEyebrow || 'Case studies' })),
             h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: p.workHeadA || 'Selected' })), p.workHeadEm ? h('span', null, h('span', { class: 'ln' }, h('em', { text: p.workHeadEm }))) : null),
-            p.workIntro ? h('p', { class: 'lede', text: p.workIntro }) : null),
+            p.workIntro ? h('p', { class: 'lede', text: p.workIntro }) : null,
+            h('div', { class: 'actions' }, h('a', { class: 'btn hero-cta home-btn', href: '/' }, icon('back'), 'Back to home'))),
           h('div', { class: 'hero-meta mono' }, h('span', { text: list.length + ' projects' }), h('a', { class: 'scroll-cue', href: '#work' }, p.scrollLabel, icon('down')))),
         h('section', { class: 'section', id: 'work' },
           h('div', { class: 'section-head' }, h('h2', { class: 'title' }, 'All projects')),
@@ -545,7 +545,6 @@
       h('section', { class: 'hero work-hero', 'aria-label': x.title },
         h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
         h('div', { class: 'hero-copy' },
-          homeBtn(),
           h('p', { class: 'eyebrow mono' }, h('a', { href: '/work', text: p.workEyebrow || 'Case studies' }), h('span', { text: '/' }), h('span', { text: [x.category, x.year].filter(Boolean).join(' / ') })),
           h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: x.title })), x.role ? h('span', null, h('span', { class: 'ln' }, h('em', { text: x.role }))) : null),
           x.summary ? h('p', { class: 'lede', text: x.summary }) : null,
