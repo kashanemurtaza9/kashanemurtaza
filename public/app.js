@@ -370,11 +370,11 @@
 
     var emailBlock = [];
     if (p.email) {
-      emailBlock.push(h('a', { class: 'btn', href: 'mailto:' + p.email }, p.contactButton || 'Email', icon('up')));
+      emailBlock.push(h('a', { class: 'btn hero-cta', href: 'mailto:' + p.email }, p.contactButton || 'Email', icon('up')));
     }
     var contactLinks = h('div', { class: 'row' },
       p.fiverr && safeUrl(p.fiverr) ? h('a', { class: 'btn ghost small', href: safeUrl(p.fiverr), target: '_blank', rel: 'noopener noreferrer' }, 'Fiverr', icon('up')) : null,
-      p.linkedin && safeUrl(p.linkedin) ? h('a', { class: 'btn ghost small', href: safeUrl(p.linkedin), target: '_blank', rel: 'noopener noreferrer' }, 'LinkedIn', icon('up')) : null);
+      safeUrl(p.linkedin || 'https://www.linkedin.com/in/kashanemurtaza') ? h('a', { class: 'btn hero-cta', href: safeUrl(p.linkedin || 'https://www.linkedin.com/in/kashanemurtaza'), target: '_blank', rel: 'noopener noreferrer' }, 'LinkedIn', icon('up')) : null);
 
     var photoSrc = imgSrc(p.photo) ? p.photo : '';
     var photoEl = photoSrc
