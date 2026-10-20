@@ -582,6 +582,15 @@
     }).catch(function (e) {
       publishing = false; updateBar();
       if (e && e.status === 401) { canEdit = false; loginError = 'Your session expired. Log in again to publish.'; view = 'login'; render('full'); return; }
+      if (e && e.code === 'conflict') {
+        if (window.confirm('The saved copy on the server is different from what you have open (maybe it was edited in another tab or device).\n\nReplace it with what you see now?')) {
+          api('GET', '/api/content').then(function (cur) { contentVersion = cur.version || 0; doPublish(); })
+            .catch(function () { toast('Could not reach the server. Try again in a moment.'); });
+        } else {
+          toast('Not published. Reload the page to see the saved copy (your edits are kept as a draft).');
+        }
+        return;
+      }
       toast(errMessage(e));
     });
   }
@@ -1228,6 +1237,10 @@
       authInfo = me;
       if (!me.authenticated) return false;
       canEdit = true;
+      /* Make sure the dashboard edits the latest saved copy, even if the page fell back to the built-in content while loading. */
+      return api('GET', '/api/content').then(function (cur) {
+        if (cur && cur.state && (cur.version || 0) !== contentVersion && !dirty) { state = cur.state; contentVersion = cur.version || 0; }
+      }).catch(function () {}).then(function () {
       var raw = store('session', 'pf-draft');
       if (raw) {
         try {
@@ -1236,6 +1249,7 @@
         } catch (e) { store('session', 'pf-draft', null); }
       }
       return true;
+      });
     });
   }
   (function init() {
