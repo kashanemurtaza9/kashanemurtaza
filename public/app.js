@@ -477,6 +477,7 @@
       media = h('div', { class: 'cover' }); applyCover(media, p);
     }
     var closeBtn = h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Close project', onclick: closeProject }, icon('close'));
+    function caseSlug(t) { return String(t || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'project'; }
     var sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': p.title },
       h('div', { class: 'sheet-top' },
         h('div', null, h('div', { class: 'mono muted', text: [p.category, p.year].filter(Boolean).join(' / ') }), h('h3', { text: p.title })),
@@ -491,7 +492,9 @@
             p.year ? h('div', null, h('dt', { text: 'Period' }), h('dd', { text: p.year })) : null,
             h('div', null, h('dt', { text: 'Area' }), h('dd', { text: p.category }))),
           p.tags && p.tags.length ? h('div', { class: 'tags' }, p.tags.map(function (t) { return h('span', { class: 'tag', text: t }); })) : null,
-          url ? h('div', { class: 'actions' }, h('a', { class: 'btn', href: url, target: '_blank', rel: 'noopener noreferrer' }, 'Visit website', icon('up'))) : null)));
+          h('div', { class: 'actions' },
+            h('a', { class: 'btn ghost', href: '/work/' + caseSlug(p.title) }, 'Read case study', icon('up')),
+            url ? h('a', { class: 'btn', href: url, target: '_blank', rel: 'noopener noreferrer' }, 'Visit website', icon('up')) : null))));
     overlayEl = h('div', { class: 'overlay', onclick: function (e) { if (e.target === overlayEl) closeProject(); } }, sheet);
     overlayEl._trigger = trigger;
     document.body.append(overlayEl);

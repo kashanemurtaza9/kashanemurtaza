@@ -12,6 +12,14 @@
     {
       "source": "/admin/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/work",
+      "destination": "/api/work"
+    },
+    {
+      "source": "/work/:slug",
+      "destination": "/api/work?slug=:slug"
     }
   ],
   "functions": {
@@ -56,7 +64,7 @@
       ]
     },
     {
-      "source": "/api/(.*)",
+      "source": "/api/((?!work).*)",
       "headers": [
         {
           "key": "X-Robots-Tag",

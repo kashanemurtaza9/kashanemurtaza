@@ -12,6 +12,8 @@ const ROUTES = { '/api/content': 'api/content.js', '/api/auth/login': 'api/auth/
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
+  const wm = /^\/work(?:\/([\w-]+))?\/?$/.exec(url.pathname);
+  if (wm) { const mod = await import(pathToFileURL(join(process.cwd(), 'api/work.js')).href); req.query = { slug: wm[1] || '' }; return mod.default(req, res); }
   if (ROUTES[url.pathname]) {
     const mod = await import(pathToFileURL(join(process.cwd(), ROUTES[url.pathname])).href);
     req.query = Object.fromEntries(url.searchParams);
