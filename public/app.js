@@ -133,8 +133,19 @@
     navExperience: 'Experience',
     servicesHeadA: 'What I',
     servicesHeadEm: 'do',
-    servicesTag: 'Five areas, one way of working'
+    servicesTag: 'Five areas, one way of working',
+    navWork: 'Work',
+    workEyebrow: 'Case studies',
+    workHeadA: 'Selected',
+    workHeadEm: 'work',
+    workIntro: 'Operations, digital marketing, research and AI video: what I did on each project, the tools I used and how it came together.',
+    caseCtaHead: 'Working on something',
+    caseCtaEm: 'similar?'
   };
+  /* Built-in covers for projects that have a video but no cover image yet. A cover set in the dashboard always wins. */
+  var AUTO_COVERS = { klarity: '/media/img/klarity-cover.webp' };
+  function caseSlug(t) { return String(t || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'project'; }
+  function coverOf(p) { return imgSrc(p.cover) ? p.cover : (AUTO_COVERS[caseSlug(p.title)] || ''); }
   function ensureProfile() {
     var p = state.profile;
     Object.keys(PROFILE_DEFAULTS).forEach(function (k) { if (typeof p[k] !== 'string') p[k] = PROFILE_DEFAULTS[k]; });
@@ -151,6 +162,8 @@
   var dirty = false;
   var publishing = false;
   var view = (bootPath === '/admin') ? 'dash' : 'site';
+  var routeM = /^\/work(?:\/([a-z0-9-]+))?$/.exec(bootPath);
+  var route = routeM ? (routeM[1] ? { page: 'case', slug: routeM[1] } : { page: 'work' }) : { page: 'home' };
   var authInfo = { authConfigured: true };
   var loginError = '';
   var adminPending = (bootPath === '/admin');
@@ -211,8 +224,8 @@
   }
 
   function applyCover(el, p) {
-    if (imgSrc(p.cover)) {
-      el.style.backgroundImage = 'url("' + p.cover + '")';
+    if (coverOf(p)) {
+      el.style.backgroundImage = 'url("' + coverOf(p) + '")';
       return;
     }
     var n = hashStr(p.id || p.title || 'x');
@@ -225,6 +238,7 @@
 
   /* Site */
   function navBar(mode) {
+    var pre = route.page === 'home' ? '' : '/';
     var dock = h('div', { class: 'dock' }, themeButton());
     if (canEdit && mode === 'site') {
       dock.append(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { go('dash'); } }, 'Dashboard'));
@@ -232,9 +246,10 @@
     var frag = document.createDocumentFragment();
     frag.append(h('header', { class: 'nav' + (mode === 'site' ? ' over' : '') }, h('div', { class: 'wrap nav-in' },
       h('nav', { class: 'links', 'aria-label': 'Main' },
-        h('a', { href: '#services', text: state.profile.navServices }),
-        h('a', { href: '#about', text: state.profile.navAbout }),
-        h('a', { href: '#experience', text: state.profile.navExperience }),
+        h('a', { href: pre + '#services', text: state.profile.navServices }),
+        h('a', { href: '/work', text: state.profile.navWork || 'Work', 'aria-current': route.page !== 'home' ? 'page' : null }),
+        h('a', { href: pre + '#about', text: state.profile.navAbout }),
+        h('a', { href: pre + '#experience', text: state.profile.navExperience }),
         h('a', { href: '#contact', text: state.profile.navContact || 'Contact' })))), dock);
     return frag;
   }
@@ -243,7 +258,7 @@
   var previewObservers = [];
   function clearPreviews() { previewObservers.forEach(function (o) { o.disconnect(); }); previewObservers = []; }
 
-  function projectCard(p) {
+  function projectCard(p, asLink) {
     var vsrc = blobSrc(p.video);
     var cover = h('div', { class: 'cover' }, h('span', { class: 'cover-tag mono', text: p.video ? p.category + ' / Video' : p.category }));
     applyCover(cover, p);
@@ -253,12 +268,19 @@
       vid.muted = true;
       cover.insertBefore(vid, cover.firstChild);
     }
-    var title = h('h3', { class: 'card-title' }, h('button', { type: 'button', onclick: function (e) { openProject(p, e.currentTarget); }, text: p.title }));
+    var title = h('h3', { class: 'card-title' }, asLink
+      ? h('a', { href: '/work/' + caseSlug(p.title), text: p.title })
+      : h('button', { type: 'button', onclick: function (e) { openProject(p, e.currentTarget); }, text: p.title }));
     var card = h('article', { class: 'card' },
       cover,
       h('div', { class: 'card-meta mono' }, h('span', { text: [p.category, p.year].filter(Boolean).join(' / ') })),
       title,
-      p.summary ? h('p', { text: p.summary }) : null);
+      p.summary ? h('p', { text: p.summary }) : null,
+      asLink ? h('a', { class: 'card-cta mono', href: '/work/' + caseSlug(p.title), 'aria-hidden': 'true', tabindex: '-1' }, 'Read case study', icon('up')) : null);
+    if (asLink) {
+      card.classList.add('is-link');
+      card.addEventListener('click', function (e) { if (!(e.target.closest && e.target.closest('a, button'))) location.href = '/work/' + caseSlug(p.title); });
+    }
     if (vid) {
       var start = function () {
         if (REDUCED) return;
@@ -314,6 +336,7 @@
   }
 
   function renderSite() {
+    if (route.page !== 'home') return renderWork();
     var p = state.profile;
     var pub = published();
     var cats = ['All'].concat(CATS.filter(function (c) { return pub.some(function (x) { return x.category === c; }); }));
@@ -367,14 +390,6 @@
         tgLbl.textContent = userPaused ? 'Video paused' : 'Video playing';
       } }, h('span', { class: 'dot' }), tgLbl);
     }
-
-    var emailBlock = [];
-    if (p.email) {
-      emailBlock.push(h('a', { class: 'btn hero-cta', href: 'mailto:' + p.email }, p.contactButton || 'Email', icon('up')));
-    }
-    var contactLinks = h('div', { class: 'row' },
-      p.fiverr && safeUrl(p.fiverr) ? h('a', { class: 'btn ghost small', href: safeUrl(p.fiverr), target: '_blank', rel: 'noopener noreferrer' }, 'Fiverr', icon('up')) : null,
-      safeUrl(p.linkedin || 'https://www.linkedin.com/in/kashanemurtaza') ? h('a', { class: 'btn hero-cta', href: safeUrl(p.linkedin || 'https://www.linkedin.com/in/kashanemurtaza'), target: '_blank', rel: 'noopener noreferrer' }, 'LinkedIn', icon('up')) : null);
 
     var photoSrc = imgSrc(p.photo) ? p.photo : '';
     var photoEl = photoSrc
@@ -439,18 +454,110 @@
               return h('div', null, h('span', { class: 'when mono', text: x.period }), h('b', { text: x.org }), h('small', { text: x.role }));
             }))) : null),
 
-        h('section', { class: 'section', id: 'contact' },
-          h('div', { class: 'contact-grid' },
-            h('div', null,
-              h('span', { class: 'mono muted', text: p.contactEyebrow }),
-              h('h2', { class: 'big' }, p.contactHeadA + (p.contactHeadEm ? ' ' : ''), p.contactHeadEm ? h('em', { text: p.contactHeadEm }) : null),
-              p.contactText ? h('p', { class: 'lede', text: p.contactText }) : null),
-            h('div', { class: 'contact-actions' },
-              emailBlock,
-              p.email ? null : h('p', { class: 'muted', text: canEdit ? "Add your email in Dashboard, Let's work together." : 'Contact details will be added soon.' }),
-              contactLinks))),
+        contactSection(p),
 
-        h('footer', { class: 'foot mono' }, h('span', { text: '© ' + new Date().getFullYear() + ' ' + p.name }), h('span', { text: p.location }), h('a', { href: '#home', text: 'Back to top' }))));
+        footer(p)));
+    return frag;
+  }
+
+  function footer(p) {
+    return h('footer', { class: 'foot mono' }, h('span', { text: '© ' + new Date().getFullYear() + ' ' + p.name }), h('span', { text: p.location }), h('a', { href: '#home', text: 'Back to top' }));
+  }
+
+  function contactSection(p, head) {
+    var emailBlock = [];
+    if (p.email) emailBlock.push(h('a', { class: 'btn hero-cta', href: 'mailto:' + p.email }, p.contactButton || 'Email', icon('up')));
+    var li = safeUrl(p.linkedin || 'https://www.linkedin.com/in/kashanemurtaza');
+    var contactLinks = h('div', { class: 'row' },
+      p.fiverr && safeUrl(p.fiverr) ? h('a', { class: 'btn ghost small', href: safeUrl(p.fiverr), target: '_blank', rel: 'noopener noreferrer' }, 'Fiverr', icon('up')) : null,
+      li ? h('a', { class: 'btn hero-cta', href: li, target: '_blank', rel: 'noopener noreferrer' }, 'LinkedIn', icon('up')) : null);
+    head = head || [p.contactHeadA, p.contactHeadEm];
+    return h('section', { class: 'section', id: 'contact' },
+      h('div', { class: 'contact-grid' },
+        h('div', null,
+          h('span', { class: 'mono muted', text: p.contactEyebrow }),
+          h('h2', { class: 'big' }, head[0] + (head[1] ? ' ' : ''), head[1] ? h('em', { text: head[1] }) : null),
+          p.contactText ? h('p', { class: 'lede', text: p.contactText }) : null),
+        h('div', { class: 'contact-actions' },
+          emailBlock,
+          p.email ? null : h('p', { class: 'muted', text: canEdit ? "Add your email in Dashboard, Let's work together." : 'Contact details will be added soon.' }),
+          contactLinks)));
+  }
+
+  /* Case studies: /work lists every published project, /work/<project> shows one. Same nav, cursor, theme and motion as the home page. */
+  function renderWork() {
+    var p = state.profile;
+    var list = published();
+    var frag = document.createDocumentFragment();
+    var x = route.page === 'case' ? list.filter(function (y) { return caseSlug(y.title) === route.slug; })[0] : null;
+    frag.append(navBar('site'));
+    if (route.page === 'case' && !x) {
+      document.title = 'Not found | ' + (p.fullName || p.name);
+      frag.append(h('main', { class: 'wrap', id: 'home' },
+        h('section', { class: 'hero work-hero', 'aria-label': 'Not found' },
+          h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
+          h('div', { class: 'hero-copy' },
+            h('p', { class: 'eyebrow mono' }, h('b', { text: p.workEyebrow || 'Case studies' })),
+            h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: 'Not' })), h('span', null, h('span', { class: 'ln' }, h('em', { text: 'found' })))),
+            h('div', { class: 'actions' }, h('a', { class: 'btn hero-cta', href: '/work' }, 'All case studies', icon('up'))))),
+        footer(p)));
+      return frag;
+    }
+    if (!x) {
+      document.title = (p.workEyebrow || 'Case studies') + ' | ' + (p.fullName || p.name);
+      frag.append(h('main', { class: 'wrap', id: 'home' },
+        h('section', { class: 'hero work-hero', 'aria-label': p.workEyebrow || 'Case studies' },
+          h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
+          h('div', { class: 'hero-copy' },
+            h('p', { class: 'eyebrow mono' }, h('b', { text: p.name }), h('span', { text: '/' }), h('span', { text: p.workEyebrow || 'Case studies' })),
+            h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: p.workHeadA || 'Selected' })), p.workHeadEm ? h('span', null, h('span', { class: 'ln' }, h('em', { text: p.workHeadEm }))) : null),
+            p.workIntro ? h('p', { class: 'lede', text: p.workIntro }) : null),
+          h('div', { class: 'hero-meta mono' }, h('span', { text: list.length + ' projects' }), h('a', { class: 'scroll-cue', href: '#work' }, p.scrollLabel, icon('down')))),
+        h('section', { class: 'section', id: 'work' },
+          h('div', { class: 'section-head' }, h('h2', { class: 'title' }, 'All projects')),
+          list.length ? h('div', { class: 'grid' }, list.map(function (y) { return projectCard(y, true); })) : h('p', { class: 'empty', text: 'Projects are on their way. Check back soon.' })),
+        contactSection(p),
+        footer(p)));
+      return frag;
+    }
+    document.title = x.title + (x.role ? ' · ' + x.role : '') + ' | ' + (p.fullName || p.name);
+    var vsrc = blobSrc(x.video);
+    var cov = coverOf(x);
+    var media;
+    if (vsrc) {
+      media = h('video', { src: vsrc + '#t=0.1', controls: true, playsinline: true, preload: 'metadata', poster: cov || null });
+      media.muted = true;
+    } else { media = h('div', { class: 'cover' }); applyCover(media, x); }
+    var url = safeUrl(x.url);
+    var i = list.indexOf(x), prev = list[(i - 1 + list.length) % list.length], next = list[(i + 1) % list.length];
+    var paras = (x.details || '').split(/\n\s*\n/).filter(Boolean);
+    frag.append(h('main', { class: 'wrap', id: 'home' },
+      h('section', { class: 'hero work-hero', 'aria-label': x.title },
+        h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
+        h('div', { class: 'hero-copy' },
+          h('p', { class: 'eyebrow mono' }, h('a', { href: '/work', text: p.workEyebrow || 'Case studies' }), h('span', { text: '/' }), h('span', { text: [x.category, x.year].filter(Boolean).join(' / ') })),
+          h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: x.title })), x.role ? h('span', null, h('span', { class: 'ln' }, h('em', { text: x.role }))) : null),
+          x.summary ? h('p', { class: 'lede', text: x.summary }) : null,
+          url ? h('div', { class: 'actions' }, h('a', { class: 'btn hero-cta', href: url, target: '_blank', rel: 'noopener noreferrer' }, 'Visit website', icon('up'))) : null),
+        h('div', { class: 'hero-meta mono' }, h('span', { text: p.location }), h('a', { class: 'scroll-cue', href: '#case' }, p.scrollLabel, icon('down')))),
+      h('section', { class: 'section case', id: 'case' },
+        h('div', { class: 'case-media' }, media),
+        h('div', { class: 'case-grid' },
+          h('div', { class: 'case-info' },
+            h('h2', { class: 'title' }, 'What I ', h('em', { text: 'did' })),
+            (paras.length ? paras : [x.summary || '']).map(function (t) { return h('p', { class: 'case-p', text: t }); }),
+            x.tags && x.tags.length ? h('div', { class: 'tags case-tags' }, x.tags.map(function (t) { return h('span', { class: 'tag', text: t }); })) : null),
+          h('dl', { class: 'case-facts mono' },
+            x.role ? h('div', null, h('dt', { text: 'Role' }), h('dd', { text: x.role })) : null,
+            x.year ? h('div', null, h('dt', { text: 'Period' }), h('dd', { text: x.year })) : null,
+            h('div', null, h('dt', { text: 'Area' }), h('dd', { text: x.category })),
+            h('div', null, h('dt', { text: 'Location' }), h('dd', { text: p.location })))),
+        list.length > 1 ? h('nav', { class: 'case-nav mono', 'aria-label': 'More case studies' },
+          h('a', { href: '/work/' + caseSlug(prev.title) }, h('small', { text: 'Previous' }), h('b', { text: prev.title })),
+          h('a', { href: '/work' }, h('small', { text: 'All' }), h('b', { text: p.workEyebrow || 'Case studies' })),
+          h('a', { href: '/work/' + caseSlug(next.title) }, h('small', { text: 'Next' }), h('b', { text: next.title }))) : null),
+      contactSection(p, [p.caseCtaHead || 'Working on something', p.caseCtaEm || 'similar?']),
+      footer(p)));
     return frag;
   }
 
@@ -472,12 +579,11 @@
     var vsrc = blobSrc(p.video);
     var media;
     if (vsrc) {
-      media = h('video', { class: 'sheet-video', src: vsrc + '#t=0.1', controls: true, muted: true, playsinline: true, preload: 'metadata', poster: imgSrc(p.cover) ? p.cover : null });
+      media = h('video', { class: 'sheet-video', src: vsrc + '#t=0.1', controls: true, muted: true, playsinline: true, preload: 'metadata', poster: coverOf(p) || null });
     } else {
       media = h('div', { class: 'cover' }); applyCover(media, p);
     }
     var closeBtn = h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Close project', onclick: closeProject }, icon('close'));
-    function caseSlug(t) { return String(t || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'project'; }
     var sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': p.title },
       h('div', { class: 'sheet-top' },
         h('div', null, h('div', { class: 'mono muted', text: [p.category, p.year].filter(Boolean).join(' / ') }), h('h3', { text: p.title })),
@@ -658,8 +764,8 @@
       miss.length ? h('div', { class: 'note' }, h('span', { text: 'Still to add: ' + miss.join(', ') + '.' })) : null,
       h('div', { class: 'tiles' }, statTile('Projects', s.total), statTile('Published', s.pub), statTile('Drafts', s.draft), statTile('With video', s.video)),
       h('div', { class: 'tabs', role: 'tablist' },
-        ['projects', 'nav', 'hero', 'services', 'about', 'contact'].map(function (t) {
-          return h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(tab === t), text: { projects: 'Projects', nav: 'Task bar', hero: 'Hero', services: 'What I do', about: 'About me', contact: "Let's work together" }[t], onclick: function () { tab = t; render(); } });
+        ['projects', 'nav', 'hero', 'services', 'about', 'work', 'contact'].map(function (t) {
+          return h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(tab === t), text: { projects: 'Projects', nav: 'Task bar', hero: 'Hero', services: 'What I do', about: 'About me', work: 'Case studies', contact: "Let's work together" }[t], onclick: function () { tab = t; render(); } });
         })),
       tab === 'projects' ? projectsPanel() : profilePanel(tab));
     return root;
@@ -823,11 +929,12 @@
     }
 
     if (which === 'nav') {
-      return panel('Task bar', 'The four links in the bar at the top of the site. Each one scrolls to its section.', [
+      return panel('Task bar', 'The links in the bar at the top of the site. Work opens the case studies page; the others scroll to their section.', [
         inp('p-n1', 'navServices', 'Link 1 (goes to What I do)'),
-        inp('p-n3', 'navAbout', 'Link 2 (goes to About me)'),
-        inp('p-n4', 'navExperience', 'Link 3 (goes to Experience)'),
-        inp('p-n5', 'navContact', 'Link 4 (goes to Let\'s work together)')
+        inp('p-nw', 'navWork', 'Link 2 (opens the Work page, /work)'),
+        inp('p-n3', 'navAbout', 'Link 3 (goes to About me)'),
+        inp('p-n4', 'navExperience', 'Link 4 (goes to Experience)'),
+        inp('p-n5', 'navContact', 'Link 5 (goes to Let\'s work together)')
       ]);
     }
 
@@ -927,6 +1034,17 @@
         inp('p-resume-label', 'resumeLabel', 'Resume button text', 'For example: Download resume, or Resume.'),
         photoField,
         xp
+      ]);
+    }
+
+    if (which === 'work') {
+      return panel('Case studies', 'The Work page (/work) and the page each project gets at /work/project-name. Each project page uses that project\'s own title, role, summary, details, tags and video from the Projects tab.', [
+        inp('p-we', 'workEyebrow', 'Page label', 'Shown above the heading and in the browser tab. For example: Case studies.'),
+        inp('p-wa', 'workHeadA', 'Heading, first line'),
+        inp('p-wm', 'workHeadEm', 'Heading, accent line', 'Shown in green italics. Leave empty for none.'),
+        area('p-wi', 'workIntro', 'Intro paragraph', 'One or two sentences under the heading.', 3),
+        inp('p-ca', 'caseCtaHead', 'Project page contact heading, first part', 'Shown at the bottom of each project page.'),
+        inp('p-cm', 'caseCtaEm', 'Project page contact heading, accent part')
       ]);
     }
 
@@ -1063,8 +1181,8 @@
       cardSetup = null;
       if (ST) {
         var heroTrig = { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 };
-        g.fromTo('.hero-copy', { y: 0 }, { y: -60, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 } });
-        ST.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onEnterBack: function () { if (heroTl) heroTl.restart(false); } });
+        if (hero) g.fromTo('.hero-copy', { y: 0 }, { y: -60, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 } });
+        if (hero) ST.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onEnterBack: function () { if (heroTl) heroTl.restart(false); } });
         if (hasRing) {
           g.fromTo('.chrome', { y: 0 }, { y: 120, ease: 'none', scrollTrigger: heroTrig });
           g.fromTo('.chrome-inner', { rotation: 0, y: 0 }, { rotation: 150, y: 50, ease: 'none', scrollTrigger: heroTrig });
@@ -1133,6 +1251,13 @@
           var aim = $('img', aph);
           if (aim) g.fromTo(aim, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: aph, start: 'top bottom', end: 'bottom top', scrub: true } });
         }
+        var cm = $('.case-media', app);
+        if (cm) {
+          g.fromTo(cm, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'power4.out', clearProps: 'clipPath', scrollTrigger: { trigger: cm, start: 'top 92%', toggleActions: TA } });
+        }
+        g.utils.toArray('.case-p, .case-tags, .case-facts > div, .case-nav > a').forEach(function (el) {
+          g.fromTo(el, { y: 36 }, { y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 94%', toggleActions: TA } });
+        });
         if ($('.xp', app)) g.fromTo('.xp > div', { y: 34 }, { y: 0, duration: 0.9, stagger: 0.12, ease: 'power3.out', scrollTrigger: { trigger: '.xp', start: 'top 88%', toggleActions: TA } });
 
         var setupCards = function (root) {

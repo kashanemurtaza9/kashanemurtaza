@@ -1,141 +1,127 @@
-// Case study pages: /work (list) and /work/<slug> (one project), rendered as plain HTML from the live content
-// so search engines get one indexable page per project. Content edits in the dashboard show up here automatically.
+// Case study pages: /work (all projects) and /work/<slug> (one project), plus /sitemap.xml.
+// The pages are the normal site (index.html + app.js, so same nav, cursor, theme and GSAP motion); this function
+// only fills in the page title, description, social preview and crawler-readable text for that page, from the live content.
 import { readContent, dbConfigured } from '../lib/db.js';
 import { slugify } from '../lib/slug.js';
 
 const SITE = 'https://kashanemurtaza-portfolio.vercel.app';
+const AUTO_COVERS = { klarity: '/media/img/klarity-cover.webp' }; // keep in sync with AUTO_COVERS in public/app.js
 const esc = (t) => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const okUrl = (u) => /^https:\/\/[^\s"'<>]+$/.test(u || '') || /^\/media\/[\w./-]+$/.test(u || '');
 const abs = (u) => (u && u.startsWith('/') ? SITE + u : u);
+const coverOf = (x) => (okUrl(x.cover) ? x.cover : AUTO_COVERS[slugify(x.title)] || '');
+
+function origin(req) {
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  return (/^(localhost|127\.0\.0\.1)(:|$)/.test(host || '') ? 'http' : 'https') + '://' + host;
+}
 
 async function loadState(req) {
   if (dbConfigured()) {
     try { const r = await readContent(); if (r && r.state) return r.state; } catch (e) { console.error('work: read failed', e && e.message); }
   }
-  const host = req.headers['x-forwarded-host'] || req.headers.host;
-  const proto = /^(localhost|127\.0\.0\.1)(:|$)/.test(host || '') ? 'http' : 'https';
-  const r = await fetch(proto + '://' + host + '/seed-content.json');
+  const r = await fetch(origin(req) + '/seed-content.json');
   return r.ok ? r.json() : null;
 }
 
-const CSS = `
-:root{--bg:#050806;--bg2:#0d1310;--fg:#efe6d2;--muted:#a7ab9d;--line:rgba(239,230,210,.15);--accent:#1fb980;--hi:#3ddc97}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 "Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-a{color:var(--hi)}img,video{max-width:100%;display:block}
-.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
-header{border-bottom:1px solid var(--line)}header .wrap{display:flex;justify-content:space-between;align-items:center;min-height:60px;gap:16px}
-.brand{color:var(--fg);text-decoration:none;font-weight:700;letter-spacing:.01em}.nav{display:flex;gap:24px;flex-wrap:wrap}.nav a{color:var(--muted);text-decoration:none;font-size:14px}.nav a:hover{color:var(--fg)}
-.eyebrow{color:var(--muted);text-transform:uppercase;letter-spacing:.14em;font-size:12px;margin:48px 0 8px}
-h1{font-size:clamp(34px,6vw,64px);line-height:1.05;letter-spacing:-.03em;margin:0 0 16px;font-weight:700}h1 em{color:var(--hi);font-style:italic;font-weight:500}
-h2{font-size:22px;margin:40px 0 12px;letter-spacing:-.01em}
-.lede{font-size:clamp(18px,2.2vw,21px);color:var(--fg);max-width:760px}
-.media{margin:32px 0;border:1px solid var(--line);background:var(--bg2);aspect-ratio:16/9;overflow:hidden}.media video,.media img{width:100%;height:100%;object-fit:cover}
-.grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:40px}@media(max-width:760px){.grid{grid-template-columns:1fr;gap:8px}}
-.body p{color:var(--muted);margin:0 0 16px}
-dl{margin:0;border-top:1px solid var(--line)}dl div{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}dt{color:var(--muted);font-size:13px}dd{margin:0;text-align:right;font-size:14px}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}.tag{border:1px solid var(--line);padding:4px 10px;font-size:12px;color:var(--muted)}
-.btn{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 20px;border:1.5px solid var(--accent);color:var(--hi);text-decoration:none;font-weight:600;font-size:14px}
-.btn:hover{background:rgba(31,185,128,.14)}.row{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin:24px 0 64px}
-.card{display:block;border:1px solid var(--line);color:var(--fg);text-decoration:none;background:var(--bg2)}.card:hover{border-color:var(--accent)}
-.card img,.card .ph{aspect-ratio:4/3;object-fit:cover;width:100%;height:auto;display:block}.card .ph{display:grid;place-items:center;font-size:64px;font-weight:700;color:var(--accent);background:linear-gradient(135deg,#0c4a35,#050806)}.card div{padding:16px}.card h3{margin:0 0 4px;font-size:18px}.card p{margin:0;color:var(--muted);font-size:14px}
-.next{border-top:1px solid var(--line);margin-top:56px;padding:32px 0 64px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px}footer .wrap{padding:24px 16px}
-`;
-
-function shell({ title, desc, canonical, image, ld, body }) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${esc(canonical)}">
-<meta property="og:type" content="article"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(canonical)}">
-<meta property="og:image" content="${esc(image || SITE + '/media/og.jpg')}"><meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#050806">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;1,500&display=swap">
-<style>${CSS}</style><script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script></head>
-<body><header><div class="wrap"><a class="brand" href="/">Kashan Murtaza</a><nav class="nav"><a href="/work">Case studies</a><a href="/#about">About me</a><a href="/#experience">Experience</a><a href="/#contact">Contact</a></nav></div></header>
-<main class="wrap">${body}</main>
-<footer><div class="wrap">Kashan Murtaza · Lahore, Pakistan · <a href="/">kashanemurtaza-portfolio.vercel.app</a></div></footer></body></html>`;
+function swap(html, start, end, content) {
+  const a = html.indexOf(start), b = html.indexOf(end);
+  if (a < 0 || b < a) return html;
+  return html.slice(0, a + start.length) + '\n' + content + '\n' + html.slice(b);
 }
 
-function contactRow(p) {
-  return `<div class="row">${p.email ? `<a class="btn" href="mailto:${esc(p.email)}">${esc(p.contactButton || 'Email Kashan')} ↗</a>` : ''}`
-    + `<a class="btn" href="${esc(okUrl(p.linkedin) ? p.linkedin : 'https://www.linkedin.com/in/kashanemurtaza')}" rel="noopener">LinkedIn ↗</a></div>`;
+function setMeta(html, { title, desc, url, image }) {
+  html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(title)}</title>`);
+  html = html.replace(/(<meta name="description" content=")[^"]*(")/, `$1${esc(desc)}$2`);
+  html = html.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${esc(url)}$2`);
+  html = html.replace(/(<meta property="og:type" content=")[^"]*(")/, '$1article$2');
+  html = html.replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${esc(title)}$2`);
+  html = html.replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(desc)}$2`);
+  html = html.replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${esc(url)}$2`);
+  html = html.replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${esc(title)}$2`);
+  html = html.replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(desc)}$2`);
+  if (image) {
+    html = html.replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${esc(image)}$2`);
+    html = html.replace(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${esc(image)}$2`);
+    html = html.replace(/\s*<meta property="og:image:(width|height)" content="[^"]*">/g, '');
+  }
+  return html;
 }
 
-function projectPage(s, x, list) {
-  const p = s.profile || {};
-  const slug = slugify(x.title);
-  const canonical = `${SITE}/work/${slug}`;
-  const what = x.role ? `${x.role}` : x.category;
-  const title = `${x.title} · ${what} | Kashan Murtaza`;
-  const desc = (x.summary || x.details || '').slice(0, 300);
-  const cover = okUrl(x.cover) ? abs(x.cover) : '';
-  const media = okUrl(x.video)
-    ? `<video src="${esc(abs(x.video))}#t=0.1" controls muted playsinline preload="metadata"${cover ? ` poster="${esc(cover)}"` : ''}></video>`
-    : cover ? `<img src="${esc(cover)}" alt="${esc(x.title)}" width="1200" height="675">` : '';
-  const paras = String(x.details || '').split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
-  const i = list.indexOf(x), nx = list[(i + 1) % list.length];
-  const ld = {
-    '@context': 'https://schema.org', '@graph': [
-      { '@type': 'CreativeWork', name: x.title, description: desc, url: canonical, image: cover || undefined, genre: x.category,
-        keywords: (x.tags || []).join(', '), author: { '@type': 'Person', name: p.fullName || 'Kashan Murtaza', url: SITE } },
-      { '@type': 'BreadcrumbList', itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
-        { '@type': 'ListItem', position: 2, name: 'Case studies', item: SITE + '/work' },
-        { '@type': 'ListItem', position: 3, name: x.title, item: canonical }] },
-    ],
-  };
-  const body = `<p class="eyebrow">Case study · ${esc(x.category)}</p>
-<h1>${esc(x.title)}${x.role ? `<br><em>${esc(x.role)}</em>` : ''}</h1>
-${x.summary ? `<p class="lede">${esc(x.summary)}</p>` : ''}
-${media ? `<div class="media">${media}</div>` : ''}
-<div class="grid"><div class="body"><h2>What I did</h2>${paras.map((t) => `<p>${esc(t)}</p>`).join('') || `<p>${esc(x.summary)}</p>`}
-${x.tags && x.tags.length ? `<h2>Skills used</h2><div class="tags">${x.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}</div>
-<aside><dl>${x.role ? `<div><dt>Role</dt><dd>${esc(x.role)}</dd></div>` : ''}${x.year ? `<div><dt>Period</dt><dd>${esc(x.year)}</dd></div>` : ''}<div><dt>Area</dt><dd>${esc(x.category)}</dd></div><div><dt>Location</dt><dd>${esc(p.location || 'Lahore, Pakistan')}</dd></div></dl>
-${okUrl(x.url) && /^https:/.test(x.url) ? `<div class="row"><a class="btn" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">Visit website ↗</a></div>` : ''}</aside></div>
-<h2>Working on something similar?</h2><p class="lede" style="color:var(--muted)">${esc(p.contactText || "Let's discuss how I can help.")}</p>${contactRow(p)}
-<div class="next"><a href="/work">← All case studies</a>${nx && nx !== x ? `<a href="/work/${slugify(nx.title)}">Next: ${esc(nx.title)} →</a>` : ''}</div>`;
-  return shell({ title, desc, canonical, image: cover, ld, body });
-}
-
-function indexPage(s, list) {
-  const p = s.profile || {};
-  const canonical = SITE + '/work';
-  const title = 'Case studies · Operations, Digital Marketing and AI Video | Kashan Murtaza';
-  const desc = 'Case studies by Kashan Murtaza: e-commerce operations, digital marketing, product research and AI video production for brands in Pakistan.';
-  const ld = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, url: canonical, description: desc,
-    hasPart: list.map((x) => ({ '@type': 'CreativeWork', name: x.title, url: `${SITE}/work/${slugify(x.title)}` })) };
-  const body = `<p class="eyebrow">Case studies</p><h1>Selected <em>work</em></h1>
-<p class="lede">${esc(p.intro || '')}</p>
-<div class="cards">${list.map((x) => `<a class="card" href="/work/${slugify(x.title)}">${okUrl(x.cover) ? `<img src="${esc(x.cover)}" alt="${esc(x.title)}" loading="lazy" width="800" height="600">` : `<span class="ph" aria-hidden="true">${esc(String(x.title).slice(0, 1))}</span>`}<div><h3>${esc(x.title)}</h3><p>${esc([x.role || x.category, x.year].filter(Boolean).join(' · '))}</p></div></a>`).join('')}</div>`;
-  return shell({ title, desc, canonical, image: '', ld, body });
+function sitemap(list) {
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = ['/', '/work', ...list.map((x) => '/work/' + slugify(x.title))];
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    + urls.map((u, i) => `  <url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod><priority>${i === 0 ? '1.0' : i === 1 ? '0.8' : '0.7'}</priority></url>`).join('\n') + '\n</urlset>\n';
 }
 
 export default async function handler(req, res) {
   try {
-    const s = await loadState(req);
-    const list = ((s && s.projects) || []).filter((x) => x.status === 'published');
+    const s = (await loadState(req)) || { profile: {}, projects: [] };
+    const p = s.profile || {};
+    const name = p.fullName || p.name || 'Kashan Murtaza';
+    const list = (s.projects || []).filter((x) => x.status === 'published');
+
     if (req.query && req.query.sitemap) {
-      const today = new Date().toISOString().slice(0, 10);
-      const urls = ['/', '/work', ...list.map((x) => '/work/' + slugify(x.title))];
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/xml; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
-      return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        + urls.map((u, i) => `  <url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod><priority>${i === 0 ? '1.0' : i === 1 ? '0.8' : '0.7'}</priority></url>`).join('\n') + '\n</urlset>\n');
+      return res.end(sitemap(list));
     }
+
+    const r = await fetch(origin(req) + '/index.html');
+    let html = await r.text();
     const slug = String((req.query && req.query.slug) || '').toLowerCase();
-    let html, status = 200;
-    if (!slug) html = indexPage(s || {}, list);
-    else {
+    let status = 200;
+
+    if (!slug) {
+      const url = SITE + '/work';
+      const title = `${p.workEyebrow || 'Case studies'} · Operations, Digital Marketing and AI Video | ${name}`;
+      const desc = `Case studies by ${name}: e-commerce operations, digital marketing, product research and AI video production.`;
+      html = setMeta(html, { title, desc, url });
+      html = swap(html, '<!--seo:content-->', '<!--/seo:content-->', ['<main class="seo-static">',
+        `<h1>${esc(p.workEyebrow || 'Case studies')}: ${esc(name)}</h1>`, p.workIntro ? `<p>${esc(p.workIntro)}</p>` : '', '<ul>',
+        ...list.map((x) => `<li><a href="/work/${slugify(x.title)}">${esc(x.title)}</a>${x.role ? ', ' + esc(x.role) : ''}${x.year ? ' (' + esc(x.year) + ')' : ''}: ${esc(x.summary)}</li>`),
+        '</ul>', '<p><a href="/">Home</a></p>', '</main>'].join('\n'));
+      html = swap(html, '<!--seo:ld-->', '<!--/seo:ld-->', '<script type="application/ld+json">' + JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, url, description: desc,
+        hasPart: list.map((x) => ({ '@type': 'CreativeWork', name: x.title, url: `${SITE}/work/${slugify(x.title)}` })),
+      }).replace(/</g, '\\u003c') + '</script>');
+    } else {
       const x = list.find((y) => slugify(y.title) === slug);
-      if (x) html = projectPage(s, x, list);
-      else { status = 404; html = shell({ title: 'Not found | Kashan Murtaza', desc: '', canonical: SITE + '/work', image: '', ld: {}, body: '<h1>Not found</h1><p><a href="/work">See all case studies</a></p>' }); }
+      if (!x) {
+        status = 404;
+        html = setMeta(html, { title: 'Not found | ' + name, desc: '', url: SITE + '/work' });
+        html = html.replace('<meta name="robots" content="index, follow, max-image-preview:large">', '<meta name="robots" content="noindex">');
+      } else {
+        const url = `${SITE}/work/${slugify(x.title)}`;
+        const title = `${x.title}${x.role ? ' · ' + x.role : ''} | ${name}`;
+        const desc = String(x.summary || x.details || '').slice(0, 300);
+        const image = coverOf(x) ? abs(coverOf(x)) : '';
+        html = setMeta(html, { title, desc, url, image });
+        const paras = String(x.details || '').split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
+        html = swap(html, '<!--seo:content-->', '<!--/seo:content-->', ['<main class="seo-static">',
+          `<p><a href="/work">${esc(p.workEyebrow || 'Case studies')}</a> / ${esc(x.category)}</p>`,
+          `<h1>${esc(x.title)}${x.role ? ': ' + esc(x.role) : ''}</h1>`,
+          x.summary ? `<p>${esc(x.summary)}</p>` : '', ...paras.map((t) => `<p>${esc(t)}</p>`),
+          x.year ? `<p>Period: ${esc(x.year)}</p>` : '', x.tags && x.tags.length ? `<p>Skills: ${x.tags.map(esc).join(', ')}</p>` : '',
+          okUrl(x.url) && /^https:/.test(x.url) ? `<p><a href="${esc(x.url)}">${esc(x.title)} website</a></p>` : '',
+          `<p>By <a href="/">${esc(name)}</a>, ${esc(p.location || 'Lahore, Pakistan')}</p>`, '</main>'].join('\n'));
+        html = swap(html, '<!--seo:ld-->', '<!--/seo:ld-->', '<script type="application/ld+json">' + JSON.stringify({
+          '@context': 'https://schema.org', '@graph': [
+            { '@type': 'CreativeWork', name: x.title, description: desc, url, image: image || undefined, genre: x.category,
+              keywords: (x.tags || []).join(', '), author: { '@type': 'Person', name, url: SITE + '/' } },
+            { '@type': 'BreadcrumbList', itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
+              { '@type': 'ListItem', position: 2, name: p.workEyebrow || 'Case studies', item: SITE + '/work' },
+              { '@type': 'ListItem', position: 3, name: x.title, item: url }] },
+          ],
+        }).replace(/</g, '\\u003c') + '</script>');
+      }
     }
     res.statusCode = status;
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
-    if (status === 404) res.setHeader('X-Robots-Tag', 'noindex');
     res.end(html);
   } catch (e) {
     console.error('work page error', e && e.message);
