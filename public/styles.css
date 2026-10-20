@@ -487,8 +487,6 @@ html:not(.mobile) #services, html:not(.mobile) #work, html:not(.mobile) #about, 
 .case-nav a:hover b { color: var(--accent); }
 html.mobile .case-grid { grid-template-columns: 1fr; }
 @media (max-width: 760px) { .case-grid { grid-template-columns: 1fr; } .case-nav { grid-template-columns: 1fr 1fr; } .case-nav a:nth-child(2) { display: none; } }
-/* Work pages: a Home button fixed in the top-left corner instead of the top bar. */
-.btn.hero-cta.home-btn { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: 16px; z-index: 60; gap: 8px; min-height: 42px; padding: 0 18px;
-  background: color-mix(in srgb, var(--bg) 72%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-.btn.hero-cta.home-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 18%, var(--bg)); }
-html:not(.mobile) .btn.hero-cta.home-btn { top: 22px; left: 28px; }
+/* Work pages: Home button at the top of the hero (scrolls with the page). */
+.home-row { margin-bottom: clamp(20px, calc(3 * var(--vw)), 36px); }
+.btn.hero-cta.home-btn { gap: 8px; }

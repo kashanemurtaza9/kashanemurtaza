@@ -247,7 +247,7 @@
     var frag = document.createDocumentFragment();
     if (mode === 'site' && route.page !== 'home') {
       /* Work pages: no top bar, just a Home button that stays in the corner. */
-      frag.append(h('a', { class: 'btn hero-cta home-btn', href: '/' }, icon('back'), 'Home'), dock);
+      frag.append(dock);
       return frag;
     }
     frag.append(h('header', { class: 'nav' + (mode === 'site' ? ' over' : '') }, h('div', { class: 'wrap nav-in' },
@@ -491,6 +491,8 @@
   }
 
   /* Case studies: /work lists every published project, /work/<project> shows one. Same nav, cursor, theme and motion as the home page. */
+  function homeBtn() { return h('div', { class: 'home-row' }, h('a', { class: 'btn hero-cta home-btn', href: '/' }, icon('back'), 'Home')); }
+
   function renderWork() {
     var p = state.profile;
     var list = published();
@@ -503,6 +505,7 @@
         h('section', { class: 'hero work-hero', 'aria-label': 'Not found' },
           h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
           h('div', { class: 'hero-copy' },
+            homeBtn(),
             h('p', { class: 'eyebrow mono' }, h('b', { text: p.workEyebrow || 'Case studies' })),
             h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: 'Not' })), h('span', null, h('span', { class: 'ln' }, h('em', { text: 'found' })))),
             h('div', { class: 'actions' }, h('a', { class: 'btn hero-cta', href: '/work' }, 'All case studies', icon('up'))))),
@@ -515,6 +518,7 @@
         h('section', { class: 'hero work-hero', 'aria-label': p.workEyebrow || 'Case studies' },
           h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
           h('div', { class: 'hero-copy' },
+            homeBtn(),
             h('p', { class: 'eyebrow mono' }, h('b', { text: p.name }), h('span', { text: '/' }), h('span', { text: p.workEyebrow || 'Case studies' })),
             h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: p.workHeadA || 'Selected' })), p.workHeadEm ? h('span', null, h('span', { class: 'ln' }, h('em', { text: p.workHeadEm }))) : null),
             p.workIntro ? h('p', { class: 'lede', text: p.workIntro }) : null),
@@ -541,6 +545,7 @@
       h('section', { class: 'hero work-hero', 'aria-label': x.title },
         h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
         h('div', { class: 'hero-copy' },
+          homeBtn(),
           h('p', { class: 'eyebrow mono' }, h('a', { href: '/work', text: p.workEyebrow || 'Case studies' }), h('span', { text: '/' }), h('span', { text: [x.category, x.year].filter(Boolean).join(' / ') })),
           h('h1', { class: 'display' }, h('span', null, h('span', { class: 'ln', text: x.title })), x.role ? h('span', null, h('span', { class: 'ln' }, h('em', { text: x.role }))) : null),
           x.summary ? h('p', { class: 'lede', text: x.summary }) : null,
@@ -1170,9 +1175,9 @@
         var isFull = mode === 'full';
         if (isFull && !introDone) { delay = playCurtain(g); introDone = true; }
         if (isFull && $('.nav-in')) g.fromTo('.nav-in', { y: -34 }, { y: 0, duration: 1, delay: delay, ease: 'power4.out' });
-        if (isFull && $('.home-btn')) g.fromTo('.home-btn', { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: delay, ease: 'power4.out' });
         var tl = g.timeline({ delay: delay, defaults: { ease: 'power4.out' } });
         heroTl = tl; introTl = isFull ? tl : null;
+        if ($('.home-row')) tl.fromTo('.home-row', { y: 22 }, { y: 0, duration: 1 }, 0);
         tl.fromTo('.eyebrow', { y: 22 }, { y: 0, duration: 1 }, 0.05)
           .fromTo('.display .ln', { yPercent: 118 }, { yPercent: 0, duration: 1.4, stagger: 0.13 }, 0.1)
           .fromTo('.lede, .actions', { y: 30 }, { y: 0, duration: 1.1, stagger: 0.12 }, 0.6)
