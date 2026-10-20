@@ -445,9 +445,18 @@ html:not(.mobile) #services, html:not(.mobile) #work, html:not(.mobile) #about, 
 .hero .btn.hero-cta, .hero.has-video .btn.hero-cta { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
 .hero .btn.hero-cta:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 14%, transparent); opacity: 1; }
 /* White glare sweeping across the hero button, top-left to bottom-right. */
-.hero .btn.hero-cta { position: relative; overflow: hidden; isolation: isolate; }
+.hero .btn.hero-cta { position: relative; overflow: visible; clip-path: inset(0); isolation: isolate; }
 .hero .btn.hero-cta::after { content: ""; position: absolute; top: -120%; left: -60%; width: 45%; height: 340%; pointer-events: none; z-index: -1;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent); transform: rotate(25deg); animation: cta-glare 3.2s ease-in-out infinite; }
 @keyframes cta-glare { 0% { left: -60%; top: -120%; } 45%, 100% { left: 130%; top: -100%; } }
 .reduce-motion .hero .btn.hero-cta::after { animation: none; display: none; }
 @media (prefers-reduced-motion: reduce) { .hero .btn.hero-cta::after { animation: none; display: none; } }
+/* The same glare running along the green outline. */
+.hero .btn.hero-cta::before { content: ""; position: absolute; inset: -1.5px; padding: 1.5px; pointer-events: none; z-index: 1;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.95) 50%, transparent 58%) no-repeat; background-size: 300% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: cta-glare-edge 3.2s ease-in-out infinite; }
+@keyframes cta-glare-edge { 0% { background-position: 100% 0; } 45%, 100% { background-position: 0% 0; } }
+.reduce-motion .hero .btn.hero-cta::before { animation: none; display: none; }
+@media (prefers-reduced-motion: reduce) { .hero .btn.hero-cta::before { animation: none; display: none; } }
