@@ -435,3 +435,9 @@ html.mobile #contact .email-big { font-size: 24px; }
 
 html.booting{background:#000}
 html.booting body{visibility:hidden}
+/* Desktop only: taller title bar with larger links (phones keep the compact bar). */
+html:not(.mobile) .nav-in { min-height: 58px; }
+html:not(.mobile) .links a { font-size: 14px; letter-spacing: 0.02em; }
+html:not(.mobile) .nav.over { margin-bottom: -59px; }
+html:not(.mobile) .nav.over + main .hero, html:not(.mobile) .nav.over ~ * .hero { padding-top: calc(clamp(64px, calc(10 * var(--vw)), 128px) + 59px); }
+html:not(.mobile) #services, html:not(.mobile) #work, html:not(.mobile) #about, html:not(.mobile) #experience, html:not(.mobile) #contact { scroll-margin-top: 64px; }
