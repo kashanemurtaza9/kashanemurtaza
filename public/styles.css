@@ -447,8 +447,8 @@ html:not(.mobile) #services, html:not(.mobile) #work, html:not(.mobile) #about, 
 /* White glare sweeping across the hero button, top-left to bottom-right. */
 .hero .btn.hero-cta { position: relative; overflow: visible; clip-path: inset(0); isolation: isolate; }
 .hero .btn.hero-cta::after { content: ""; position: absolute; top: -120%; left: -60%; width: 45%; height: 340%; pointer-events: none; z-index: -1;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent); transform: rotate(25deg); animation: cta-glare 6s ease-in-out infinite; }
-@keyframes cta-glare { 0% { left: -60%; top: -120%; } 60%, 100% { left: 130%; top: -100%; } }
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent); transform: rotate(25deg); animation: cta-glare 6.25s linear infinite; }
+@keyframes cta-glare { 0% { left: -60%; top: -120%; } 72%, 100% { left: 130%; top: -100%; } }
 .reduce-motion .hero .btn.hero-cta::after { animation: none; display: none; }
 @media (prefers-reduced-motion: reduce) { .hero .btn.hero-cta::after { animation: none; display: none; } }
 /* The same glare running along the green outline. */
@@ -456,7 +456,7 @@ html:not(.mobile) #services, html:not(.mobile) #work, html:not(.mobile) #about, 
   background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.95) 50%, transparent 58%) no-repeat; background-size: 300% 100%;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  animation: cta-glare-edge 6s ease-in-out infinite; }
-@keyframes cta-glare-edge { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0% 0; } }
+  animation: cta-glare-edge 6.25s linear infinite; }
+@keyframes cta-glare-edge { 0% { background-position: 100% 0; } 72%, 100% { background-position: 0% 0; } }
 .reduce-motion .hero .btn.hero-cta::before { animation: none; display: none; }
 @media (prefers-reduced-motion: reduce) { .hero .btn.hero-cta::before { animation: none; display: none; } }
