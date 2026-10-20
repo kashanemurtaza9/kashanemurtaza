@@ -584,7 +584,10 @@
       if (e && e.status === 401) { canEdit = false; loginError = 'Your session expired. Log in again to publish.'; view = 'login'; render('full'); return; }
       if (e && e.code === 'conflict') {
         if (window.confirm('The saved copy on the server is different from what you have open (maybe it was edited in another tab or device).\n\nReplace it with what you see now?')) {
-          api('GET', '/api/content').then(function (cur) { contentVersion = cur.version || 0; doPublish(); })
+          api('GET', '/api/content').then(function (cur) {
+            if ((cur.version || 0) === contentVersion) { toast('Could not save. Please try Publish again in a minute.'); return; }
+            contentVersion = cur.version || 0; doPublish();
+          })
             .catch(function () { toast('Could not reach the server. Try again in a moment.'); });
         } else {
           toast('Not published. Reload the page to see the saved copy (your edits are kept as a draft).');
