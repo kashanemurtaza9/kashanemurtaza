@@ -460,3 +460,6 @@ html:not(.mobile) #services, html:not(.mobile) #work, html:not(.mobile) #about, 
 @keyframes cta-glare-edge { 0% { background-position: 100% 0; } 72%, 100% { background-position: 0% 0; } }
 .reduce-motion .btn.hero-cta::before { animation: none; display: none; }
 @media (prefers-reduced-motion: reduce) { .btn.hero-cta::before { animation: none; display: none; } }
+/* On the beige contact section a white glare barely shows, so use a green one there. */
+.contact-actions .btn.hero-cta::after { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 45%, transparent), transparent); }
+.contact-actions .btn.hero-cta::before { background-image: linear-gradient(115deg, transparent 42%, color-mix(in srgb, var(--accent) 100%, #000 25%) 50%, transparent 58%); }
