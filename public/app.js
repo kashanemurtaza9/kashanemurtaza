@@ -53,6 +53,7 @@
   ];
 
   var ICONS = {
+    back: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
     up: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 17 17 7M8 7h9v9"/></svg>',
     down: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 7l10 10M17 8v9H8"/></svg>',
     sun: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
@@ -244,6 +245,11 @@
       dock.append(h('button', { class: 'btn ghost small', type: 'button', onclick: function () { go('dash'); } }, 'Dashboard'));
     }
     var frag = document.createDocumentFragment();
+    if (mode === 'site' && route.page !== 'home') {
+      /* Work pages: no top bar, just a Home button that stays in the corner. */
+      frag.append(h('a', { class: 'btn hero-cta home-btn', href: '/' }, icon('back'), 'Home'), dock);
+      return frag;
+    }
     frag.append(h('header', { class: 'nav' + (mode === 'site' ? ' over' : '') }, h('div', { class: 'wrap nav-in' },
       h('nav', { class: 'links', 'aria-label': 'Main' },
         h('a', { href: pre + '#services', text: state.profile.navServices }),
@@ -1163,7 +1169,8 @@
         var delay = 0;
         var isFull = mode === 'full';
         if (isFull && !introDone) { delay = playCurtain(g); introDone = true; }
-        if (isFull) g.fromTo('.nav-in', { y: -34 }, { y: 0, duration: 1, delay: delay, ease: 'power4.out' });
+        if (isFull && $('.nav-in')) g.fromTo('.nav-in', { y: -34 }, { y: 0, duration: 1, delay: delay, ease: 'power4.out' });
+        if (isFull && $('.home-btn')) g.fromTo('.home-btn', { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: delay, ease: 'power4.out' });
         var tl = g.timeline({ delay: delay, defaults: { ease: 'power4.out' } });
         heroTl = tl; introTl = isFull ? tl : null;
         tl.fromTo('.eyebrow', { y: 22 }, { y: 0, duration: 1 }, 0.05)
