@@ -22,7 +22,7 @@ const body = [
   ...(p.experience || []).map((e) => `<li>${esc(e.role)}, ${esc(e.org)} (${esc(e.period)})</li>`),
   '</ul><h2>Projects</h2>',
   `<p><a href="/work">All case studies</a></p>`,
-  ...projects.map((x) => `<article><h3><a href="/work/${slugify(x.title)}">${esc(x.title)}</a></h3><p>${esc(x.category)}${x.year ? ' · ' + esc(x.year) : ''}${x.role ? ' · ' + esc(x.role) : ''}</p><p>${esc(x.summary)}</p></article>`),
+  ...projects.map((x) => `<article>${/^\/media\//.test(x.cover || '') ? `<img src="${esc(x.cover)}" alt="${esc(x.title)}: ${esc(x.role || x.category)} by ${esc(p.fullName || p.name)}" width="1000" height="558" loading="lazy">` : ''}<h3><a href="/work/${slugify(x.title)}">${esc(x.title)}</a></h3><p>${esc(x.category)}${x.year ? ' · ' + esc(x.year) : ''}${x.role ? ' · ' + esc(x.role) : ''}</p><p>${esc(x.summary)}</p></article>`),
   p.resumeUrl ? `<p><a href="${esc(p.resumeUrl)}">${esc(p.resumeLabel || 'Download resume')}</a></p>` : '',
   '</main>',
 ].join('\n');
@@ -36,8 +36,13 @@ const ld = {
       image: SITE + '/media/og.jpg',
       address: { '@type': 'PostalAddress', addressLocality: 'Lahore', addressCountry: 'PK' },
       knowsAbout: String(p.skills || '').split(',').map((t) => t.trim()).filter(Boolean),
-      sameAs: [p.linkedin, p.fiverr].filter((u) => /^https:\/\//.test(u || '')),
+      sameAs: [...new Set([p.linkedin || 'https://www.linkedin.com/in/kashanemurtaza', p.fiverr, 'https://github.com/kashanemurtaza9'].filter((u) => /^https:\/\//.test(u || '')))],
+      worksFor: p.experience && p.experience[0] && /current|present|now/i.test(p.experience[0].period || '') ? { '@type': 'Organization', name: p.experience[0].org } : undefined,
+      alumniOf: [{ '@type': 'EducationalOrganization', name: 'CGL' }, { '@type': 'EducationalOrganization', name: 'The Country School' }],
+      hasOccupation: { '@type': 'Occupation', name: p.title, occupationLocation: { '@type': 'City', name: 'Lahore' } },
+      ...(p.photo && /^\/media\//.test(p.photo) ? { image: SITE + p.photo } : {}),
     },
+    { '@type': 'ProfilePage', '@id': SITE + '/#profile', url: SITE + '/', name: (p.fullName || p.name) + ' Portfolio', mainEntity: { '@id': SITE + '/#person' } },
     { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE, name: (p.fullName || p.name) + ' Portfolio', publisher: { '@id': SITE + '/#person' } },
   ],
 };
