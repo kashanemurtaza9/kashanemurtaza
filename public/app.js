@@ -160,6 +160,12 @@
   function ensureProfile() {
     var p = state.profile;
     Object.keys(PROFILE_DEFAULTS).forEach(function (k) { if (typeof p[k] !== 'string') p[k] = PROFILE_DEFAULTS[k]; });
+    /* One-time update (same as lib/migrate.js): show the current Business Manager role. */
+    if (typeof p.title === 'string' && /tech\W{0,3}driven\W+growth/i.test(p.title) && !/business manager/i.test(p.title)) p.title = 'Business Manager · Operations & Digital Marketing';
+    if (Array.isArray(p.faq) && p.faq.length && !p.faq.some(function (f) { return /business manager/i.test((f && (f.q + ' ' + f.a)) || ''); })) {
+      var dq = FAQ_DEFAULT.filter(function (f) { return /current role/i.test(f[0]); })[0];
+      if (dq) p.faq.splice(1, 0, { q: dq[0], a: dq[1] });
+    }
     if (!Array.isArray(p.faq)) p.faq = FAQ_DEFAULT.map(function (f) { return { q: f[0], a: f[1] }; });
     if (!Array.isArray(p.caps)) p.caps = CAPS.map(function (c) { return { title: c[0], text: c[1], keywords: c[2].join(', ') }; });
   }
