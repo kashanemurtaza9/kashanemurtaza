@@ -2,12 +2,16 @@ import { readContent, writeContent, dbConfigured, storageKind } from '../lib/db.
 import { isAuthenticated, sameOrigin } from '../lib/auth.js';
 import { send, readJson } from '../lib/http.js';
 import { validateState } from '../lib/validate.js';
+import { migrate } from '../lib/migrate.js';
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       if (!dbConfigured()) return send(res, 200, { state: null, version: 0, source: 'none' });
       const r = await readContent();
+      if (r.state && migrate(r.state)) {
+        try { const w = await writeContent(r.state, r.version); if (w.ok) r.version = w.version; } catch (e) { console.error('migrate write failed', e && e.message); }
+      }
       return send(res, 200, { state: r.state, version: r.version, source: r.state ? storageKind() : 'none' });
     }
 
