@@ -280,6 +280,7 @@
 
   /* Card previews: hover (mouse), keyboard focus, or, on touch screens, being near the middle of the screen. */
   var previewObservers = [];
+  var capObservers = [];
   function clearPreviews() { previewObservers.forEach(function (o) { o.disconnect(); }); previewObservers = []; }
 
   function projectCard(p, asLink) {
@@ -1304,10 +1305,7 @@
           g.fromTo(el, { y: 40 }, { y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 94%', toggleActions: TA } });
         });
 
-        /* What I do: each row's title, text and keywords rise in like the rest of the page (About, FAQ, case studies). */
-        g.utils.toArray('.cap').forEach(function (row) {
-          g.fromTo(row.querySelectorAll('h3, p, .kw'), { y: 40 }, { y: 0, duration: 1, stagger: 0.08, ease: 'power3.out', scrollTrigger: { trigger: row, start: 'top 92%', toggleActions: TA } });
-        });
+
 
         g.utils.toArray('.about-copy > *').forEach(function (el) {
           g.fromTo(el, { y: 40 }, { y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 92%', toggleActions: TA } });
@@ -1343,6 +1341,30 @@
         };
         setupCards(app);
         cardSetup = function (root) { if (gctx) gctx.add(function () { setupCards(root); }); };
+      }
+      /* What I do: the section is CSS-zoomed on phones, which throws ScrollTrigger's measurements off,
+         so its rows animate from an IntersectionObserver instead. Each row plays when it comes into view and resets when it leaves below. */
+      if ('IntersectionObserver' in window) {
+        var capReadyAt = performance.now() + (introTl && introTl.progress() < 1 ? (introTl.delay() + introTl.duration()) * 1000 * 0.55 : 0);
+        g.utils.toArray('.cap').forEach(function (row) {
+          var parts = [row.querySelector('h3'), row.querySelector('p')].filter(Boolean);
+          var kws = row.querySelectorAll('.kw span');
+          g.set(parts, { y: 56, autoAlpha: 0 });
+          g.set(kws, { y: 18, autoAlpha: 0 });
+          var tl = g.timeline({ paused: true, defaults: { ease: 'power3.out' } })
+            .to(parts, { y: 0, autoAlpha: 1, duration: 1.1, stagger: 0.12 })
+            .to(kws, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.06 }, '-=0.6');
+          var io = new IntersectionObserver(function (es) {
+            es.forEach(function (en) {
+              if (en.isIntersecting) { var wait = capReadyAt - performance.now(); if (wait > 0) setTimeout(function () { tl.play(); }, wait); else tl.play(); }
+              else if (en.boundingClientRect.top > 0) tl.pause(0);
+            });
+          }, { threshold: 0.2 });
+          io.observe(row);
+          capObservers.push(io);
+          /* Safety: never leave a row hidden. */
+          setTimeout(function () { var r = row.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0 && tl.progress() === 0) tl.play(); }, Math.max(1500, capReadyAt - performance.now() + 1500));
+        });
       }
     }, app);
   }
@@ -1406,6 +1428,7 @@
     normCats();
     var top = window.scrollY;
     if (gctx) { gctx.revert(); gctx = null; }
+    capObservers.forEach(function (o) { o.disconnect(); }); capObservers = [];
     clearPreviews();
     app.replaceChildren();
     if (view === 'dash' && !canEdit) view = 'login';
