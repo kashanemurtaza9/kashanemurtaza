@@ -1343,27 +1343,38 @@
         cardSetup = function (root) { if (gctx) gctx.add(function () { setupCards(root); }); };
       }
       /* What I do: the section is CSS-zoomed on phones, which throws ScrollTrigger's measurements off,
-         so its rows animate from an IntersectionObserver instead. Each row plays when it comes into view and resets when it leaves below. */
+         so its rows animate from an IntersectionObserver instead. Each row plays whenever it comes into view, scrolling down or up, and resets when it leaves. */
       if ('IntersectionObserver' in window) {
         var capReadyAt = performance.now() + (introTl && introTl.progress() < 1 ? (introTl.delay() + introTl.duration()) * 1000 * 0.55 : 0);
         g.utils.toArray('.cap').forEach(function (row) {
           var parts = [row.querySelector('h3'), row.querySelector('p')].filter(Boolean);
           var kws = row.querySelectorAll('.kw span');
-          g.set(parts, { y: 56, autoAlpha: 0 });
-          g.set(kws, { y: 18, autoAlpha: 0 });
-          var tl = g.timeline({ paused: true, defaults: { ease: 'power3.out' } })
-            .to(parts, { y: 0, autoAlpha: 1, duration: 1.1, stagger: 0.12 })
-            .to(kws, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.06 }, '-=0.6');
+          var tl = null, vis = false;
+          function hide() { if (tl) tl.kill(); tl = null; g.set(parts, { y: 56, autoAlpha: 0 }); g.set(kws, { y: 18, autoAlpha: 0 }); }
+          /* fromAbove: the row is entering from the top of the screen (scrolling up), so it drops down into place. */
+          function play(fromAbove) {
+            if (tl) return;
+            var d = fromAbove ? -1 : 1;
+            g.set(parts, { y: 56 * d }); g.set(kws, { y: 18 * d });
+            tl = g.timeline({ defaults: { ease: 'power3.out' } })
+              .to(parts, { y: 0, autoAlpha: 1, duration: 1.1, stagger: 0.12 })
+              .to(kws, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.06 }, '-=0.6');
+          }
+          hide();
           var io = new IntersectionObserver(function (es) {
             es.forEach(function (en) {
-              if (en.isIntersecting) { var wait = capReadyAt - performance.now(); if (wait > 0) setTimeout(function () { tl.play(); }, wait); else tl.play(); }
-              else if (en.boundingClientRect.top > 0) tl.pause(0);
+              var above = en.boundingClientRect.top < 0;
+              vis = en.isIntersecting;
+              if (vis) {
+                var wait = capReadyAt - performance.now();
+                if (wait > 0) setTimeout(function () { if (vis) play(above); }, wait); else play(above);
+              } else hide();
             });
           }, { threshold: 0.2 });
           io.observe(row);
           capObservers.push(io);
           /* Safety: never leave a row hidden. */
-          setTimeout(function () { var r = row.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0 && tl.progress() === 0) tl.play(); }, Math.max(1500, capReadyAt - performance.now() + 1500));
+          setTimeout(function () { var r = row.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0 && !tl) play(false); }, Math.max(1500, capReadyAt - performance.now() + 1500));
         });
       }
     }, app);
