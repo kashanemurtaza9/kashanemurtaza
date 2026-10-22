@@ -9,10 +9,14 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       if (!dbConfigured()) return send(res, 200, { state: null, version: 0, source: 'none' });
       const r = await readContent();
-      if (r.state && migrate(r.state)) {
-        try { const w = await writeContent(r.state, r.version); if (w.ok) r.version = w.version; else console.error('migrate write: version conflict'); } catch (e) { console.error('migrate write failed', e && e.message); }
-      }
-      return send(res, 200, { state: r.state, version: r.version, source: r.state ? storageKind() : 'none' });
+      let mig = 'none';
+      try {
+        if (r.state && migrate(r.state)) {
+          mig = 'changed';
+          try { const w = await writeContent(r.state, r.version); if (w.ok) { r.version = w.version; mig = 'saved'; } else mig = 'conflict'; } catch (e) { mig = 'write-error: ' + (e && e.message); }
+        }
+      } catch (e) { mig = 'error: ' + (e && e.message); }
+      return send(res, 200, { mig, t: r.state && r.state.profile ? JSON.stringify(r.state.profile.title) : null, state: r.state, version: r.version, source: r.state ? storageKind() : 'none' });
     }
 
     if (req.method === 'PUT') {
