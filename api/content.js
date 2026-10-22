@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       if (!dbConfigured()) return send(res, 200, { state: null, version: 0, source: 'none' });
       const r = await readContent();
       if (r.state && migrate(r.state)) {
-        try { const w = await writeContent(r.state, r.version); if (w.ok) r.version = w.version; } catch (e) { console.error('migrate write failed', e && e.message); }
+        try { const w = await writeContent(r.state, r.version); if (w.ok) r.version = w.version; else console.error('migrate write: version conflict'); } catch (e) { console.error('migrate write failed', e && e.message); }
       }
       return send(res, 200, { state: r.state, version: r.version, source: r.state ? storageKind() : 'none' });
     }
