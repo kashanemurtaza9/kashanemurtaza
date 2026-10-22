@@ -76,8 +76,8 @@ export default async function handler(req, res) {
 
     if (!slug) {
       const url = SITE + '/work';
-      const title = `${p.workEyebrow || 'Case studies'} · Operations, Digital Marketing and AI Video | ${name}`;
-      const desc = `Case studies by ${name}: e-commerce operations, digital marketing, product research and AI video production.`;
+      const title = `${p.workEyebrow || 'Case studies'}: E-commerce Operations, Meta Ads & AI Video | ${name}`;
+      const desc = `Case studies by ${name}, Business Manager in Lahore: e-commerce and Shopify operations, Meta Ads and social media marketing, AI video ads and product research.`;
       html = setMeta(html, { title, desc, url });
       html = swap(html, '<!--seo:content-->', '<!--/seo:content-->', ['<main class="seo-static">',
         `<h1>${esc(p.workEyebrow || 'Case studies')}: ${esc(name)}</h1>`, p.workIntro ? `<p>${esc(p.workIntro)}</p>` : '', '<ul>',
@@ -95,8 +95,8 @@ export default async function handler(req, res) {
         html = html.replace('<meta name="robots" content="index, follow, max-image-preview:large">', '<meta name="robots" content="noindex">');
       } else {
         const url = `${SITE}/work/${slugify(x.title)}`;
-        const title = `${x.title}${x.role ? ' · ' + x.role : ''} | ${name}`;
-        const desc = String(x.summary || x.details || '').slice(0, 300);
+        const title = `${x.title}${x.role ? ': ' + x.role : ''} Case Study | ${name}, Lahore`;
+        const desc = (String(x.summary || x.details || '') + ` Case study by ${name}, ${p.location || 'Lahore, Pakistan'}.`).slice(0, 300);
         const image = coverOf(x) ? abs(coverOf(x)) : '';
         html = setMeta(html, { title, desc, url, image });
         const paras = String(x.details || '').split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);

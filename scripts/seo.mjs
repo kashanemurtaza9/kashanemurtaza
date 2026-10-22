@@ -12,7 +12,8 @@ const projects = s.projects.filter((x) => x.status === 'published');
 
 const body = [
   '<main class="seo-static">',
-  `<h1>${esc(p.fullName || p.name)} · ${esc(p.title)}</h1>`,
+  `<h1>${esc(p.fullName || p.name)}: Business Manager, E-commerce Operations and Digital Marketing Specialist in Lahore, Pakistan</h1>`,
+  `<p>${esc(p.title)}</p>`,
   `<p>${esc(p.intro)}</p>`,
   `<p>${esc(p.location)} · <a href="mailto:${esc(p.email)}">${esc(p.email)}</a></p>`,
   `<h2>${esc(p.aboutHeading || 'About me')}</h2>`,
@@ -20,7 +21,7 @@ const body = [
   p.skills ? `<p><strong>Skills:</strong> ${esc(p.skills)}</p>` : '',
   '<h2>Experience</h2><ul>',
   ...(p.experience || []).map((e) => `<li>${esc(e.role)}, ${esc(e.org)} (${esc(e.period)})</li>`),
-  '</ul><h2>Projects</h2>',
+  '</ul><h2>Projects and case studies: e-commerce operations, Meta Ads, AI video ads and product research</h2>',
   `<p><a href="/work">All case studies</a></p>`,
   ...projects.map((x) => `<article>${/^\/media\//.test(x.cover || '') ? `<img src="${esc(x.cover)}" alt="${esc(x.title)}: ${esc(x.role || x.category)} by ${esc(p.fullName || p.name)}" width="1000" height="558" loading="lazy">` : ''}<h3><a href="/work/${slugify(x.title)}">${esc(x.title)}</a></h3><p>${esc(x.category)}${x.year ? ' · ' + esc(x.year) : ''}${x.role ? ' · ' + esc(x.role) : ''}</p><p>${esc(x.summary)}</p></article>`),
   p.resumeUrl ? `<p><a href="${esc(p.resumeUrl)}">${esc(p.resumeLabel || 'Download resume')}</a></p>` : '',

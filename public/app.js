@@ -556,7 +556,7 @@
       return frag;
     }
     if (!x) {
-      document.title = (p.workEyebrow || 'Case studies') + ' | ' + (p.fullName || p.name);
+      document.title = (p.workEyebrow || 'Case studies') + ': E-commerce Operations, Meta Ads & AI Video | ' + (p.fullName || p.name);
       frag.append(h('main', { class: 'wrap', id: 'home' },
         h('section', { class: 'hero work-hero', 'aria-label': p.workEyebrow || 'Case studies' },
           h('div', { class: 'hero-grid', 'aria-hidden': 'true' }),
@@ -573,7 +573,7 @@
         footer(p)));
       return frag;
     }
-    document.title = x.title + (x.role ? ' · ' + x.role : '') + ' | ' + (p.fullName || p.name);
+    document.title = x.title + (x.role ? ': ' + x.role : '') + ' Case Study | ' + (p.fullName || p.name) + ', Lahore';
     var vsrc = blobSrc(x.video);
     var cov = coverOf(x);
     var media;
