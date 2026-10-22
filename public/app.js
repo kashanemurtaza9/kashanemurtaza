@@ -143,6 +143,15 @@
     caseCtaHead: 'Working on something',
     caseCtaEm: 'similar?'
   };
+  /* Questions and answers shown on the home page (and read by Google and AI search). Editable in Dashboard, FAQ. */
+  var FAQ_DEFAULT = [
+    ['What does Kashan Murtaza do?', 'Kashan Murtaza is an operations and digital marketing specialist based in Lahore, Pakistan, with four years of experience across e-commerce operations, product research, social media marketing and AI content creation.'],
+    ['What services does Kashan offer?', 'E-commerce operations (order processing, inventory, dispatch, returns and refunds), digital marketing (social media strategy, Meta Ads and campaign management), AI video and image content for ads and social media, and product and market research.'],
+    ['What tools does Kashan work with?', 'Shopify for store operations, Meta Ads for paid social campaigns, AI video and image generation tools with prompt engineering, and WhatsApp for customer support.'],
+    ['Where is Kashan based?', 'Lahore, Pakistan.'],
+    ['Can I see examples of his work?', 'Yes. Every project has its own case study on the Work page, with what he did, the skills used and a video.'],
+    ['How can I hire Kashan?', 'Send an email from the contact section at the bottom of this page, or message him on LinkedIn.']
+  ];
   /* Built-in covers for projects that have a video but no cover image yet. A cover set in the dashboard always wins. */
   var AUTO_COVERS = { klarity: '/media/img/klarity-cover.webp' };
   function caseSlug(t) { return String(t || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'project'; }
@@ -150,6 +159,7 @@
   function ensureProfile() {
     var p = state.profile;
     Object.keys(PROFILE_DEFAULTS).forEach(function (k) { if (typeof p[k] !== 'string') p[k] = PROFILE_DEFAULTS[k]; });
+    if (!Array.isArray(p.faq)) p.faq = FAQ_DEFAULT.map(function (f) { return { q: f[0], a: f[1] }; });
     if (!Array.isArray(p.caps)) p.caps = CAPS.map(function (c) { return { title: c[0], text: c[1], keywords: c[2].join(', ') }; });
   }
 
@@ -460,10 +470,35 @@
               return h('div', null, h('span', { class: 'when mono', text: x.period }), h('b', { text: x.org }), h('small', { text: x.role }));
             }))) : null),
 
+        faqSection(p),
+
         contactSection(p),
 
         footer(p)));
     return frag;
+  }
+
+  function faqSection(p) {
+    var list = (p.faq || []).filter(function (f) { return f && f.q && f.a; });
+    if (!list.length) return null;
+    return h('section', { class: 'section', id: 'faq' },
+      h('div', { class: 'section-head' }, h('h2', { class: 'title' }, 'Questions ', h('em', { text: 'answered' }))),
+      h('div', { class: 'faq' }, list.map(function (f, i) {
+        return h('details', { class: 'faq-item', open: i === 0 ? true : null },
+          h('summary', null, h('h3', { text: f.q }), icon('down')),
+          h('p', { text: f.a }));
+      })));
+  }
+
+  /* FAQ structured data for Google, built from the same questions as the visible section. */
+  function faqLd() {
+    var old = document.getElementById('faq-ld'); if (old) old.remove();
+    if (route.page !== 'home') return;
+    var list = (state.profile.faq || []).filter(function (f) { return f && f.q && f.a; });
+    if (!list.length) return;
+    var sc = document.createElement('script'); sc.type = 'application/ld+json'; sc.id = 'faq-ld';
+    sc.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: list.map(function (f) { return { '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } }; }) });
+    document.head.appendChild(sc);
   }
 
   function footer(p) {
@@ -774,8 +809,8 @@
       miss.length ? h('div', { class: 'note' }, h('span', { text: 'Still to add: ' + miss.join(', ') + '.' })) : null,
       h('div', { class: 'tiles' }, statTile('Projects', s.total), statTile('Published', s.pub), statTile('Drafts', s.draft), statTile('With video', s.video)),
       h('div', { class: 'tabs', role: 'tablist' },
-        ['projects', 'nav', 'hero', 'services', 'about', 'work', 'contact'].map(function (t) {
-          return h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(tab === t), text: { projects: 'Projects', nav: 'Task bar', hero: 'Hero', services: 'What I do', about: 'About me', work: 'Case studies', contact: "Let's work together" }[t], onclick: function () { tab = t; render(); } });
+        ['projects', 'nav', 'hero', 'services', 'about', 'work', 'faq', 'contact'].map(function (t) {
+          return h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(tab === t), text: { projects: 'Projects', nav: 'Task bar', hero: 'Hero', services: 'What I do', about: 'About me', work: 'Case studies', faq: 'FAQ', contact: "Let's work together" }[t], onclick: function () { tab = t; render(); } });
         })),
       tab === 'projects' ? projectsPanel() : profilePanel(tab));
     return root;
@@ -1047,6 +1082,21 @@
       ]);
     }
 
+    if (which === 'faq') {
+      var fb = h('div', { class: 'field full' }, h('span', { class: 'lab mono', text: 'Questions' }));
+      p.faq.forEach(function (f, i) {
+        fb.append(h('div', { class: 'xp-edit', style: 'display:grid;grid-template-columns:1fr;gap:8px;padding:14px 0;border-top:1px solid var(--line, rgba(128,128,128,.3))' },
+          h('input', { type: 'text', value: f.q, 'aria-label': 'Question ' + (i + 1), placeholder: 'Question', maxlength: '200', oninput: function (e) { f.q = e.target.value; markDirty(); } }),
+          h('textarea', { rows: '3', 'aria-label': 'Answer ' + (i + 1), placeholder: 'Answer', value: f.a, oninput: function (e) { f.a = e.target.value; markDirty(); } }),
+          h('div', null,
+            h('button', { class: 'btn ghost small', type: 'button', disabled: i === 0, onclick: function () { p.faq.splice(i - 1, 0, p.faq.splice(i, 1)[0]); markDirty(); render(); } }, 'Move up'), ' ',
+            h('button', { class: 'btn ghost small', type: 'button', disabled: i === p.faq.length - 1, onclick: function () { p.faq.splice(i + 1, 0, p.faq.splice(i, 1)[0]); markDirty(); render(); } }, 'Move down'), ' ',
+            h('button', { class: 'btn ghost small', type: 'button', onclick: function () { p.faq.splice(i, 1); markDirty(); render(); } }, icon('trash'), 'Remove'))));
+      });
+      fb.append(h('div', null, h('button', { class: 'btn ghost small', type: 'button', onclick: function () { p.faq.push({ q: '', a: '' }); markDirty(); render(); } }, icon('plus'), 'Add question')));
+      return panel('FAQ', 'Questions and answers shown on the home page above the contact section. Google and AI search tools read these, so keep answers short, factual and true. Remove every question to hide the section.', [fb]);
+    }
+
     if (which === 'work') {
       return panel('Case studies', 'The Work page (/work) and the page each project gets at /work/project-name. Each project page uses that project\'s own title, role, summary, details, tags and video from the Projects tab.', [
         inp('p-we', 'workEyebrow', 'Page label', 'Shown above the heading and in the browser tab. For example: Case studies.'),
@@ -1266,6 +1316,9 @@
         if (cm) {
           g.fromTo(cm, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'power4.out', clearProps: 'clipPath', scrollTrigger: { trigger: cm, start: 'top 92%', toggleActions: TA } });
         }
+        g.utils.toArray('.faq-item').forEach(function (el) {
+          g.fromTo(el, { y: 36 }, { y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 94%', toggleActions: TA } });
+        });
         g.utils.toArray('.case-p, .case-tags, .case-facts > div, .case-nav > a').forEach(function (el) {
           g.fromTo(el, { y: 36 }, { y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 94%', toggleActions: TA } });
         });
@@ -1357,6 +1410,7 @@
     window.scrollTo(0, top);
     animate(mode);
     syncCursor();
+    if (view === 'site') faqLd();
   }
   /* Anchor links scroll smoothly through script. A CSS smooth-scroll rule makes ScrollTrigger measure positions wrongly after a refresh, which hid headings. */
   document.addEventListener('click', function (e) {

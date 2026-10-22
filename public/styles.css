@@ -490,3 +490,13 @@ html.mobile .case-grid { grid-template-columns: 1fr; }
 /* Work pages: Home button at the top of the hero (scrolls with the page). */
 .home-row { margin-bottom: clamp(20px, calc(3 * var(--vw)), 36px); }
 .btn.hero-cta.home-btn { gap: 8px; }
+/* FAQ on the home page */
+.faq { border-bottom: 1px solid var(--line); }
+.faq-item { border-top: 1px solid var(--line); }
+.faq-item summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-block: clamp(20px, calc(2.6 * var(--vw)), 32px); cursor: pointer; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary h3 { margin: 0; font: 500 clamp(20px, calc(2.2 * var(--vw)), 30px)/1.15 var(--f-display); letter-spacing: -0.03em; transition: color 0.3s; }
+.faq-item summary:hover h3, .faq-item[open] summary h3 { color: var(--accent); }
+.faq-item summary .ic { flex: none; transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.faq-item[open] summary .ic { transform: rotate(-90deg); }
+.faq-item p { margin: 0 0 clamp(20px, calc(2.6 * var(--vw)), 32px); color: var(--muted); max-width: 70ch; font-size: clamp(15px, calc(1.2 * var(--vw)), 17px); line-height: 1.7; }

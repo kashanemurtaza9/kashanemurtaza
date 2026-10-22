@@ -1,0 +1,19 @@
+# Kashan Murtaza
+
+> Operations and digital marketing specialist based in Lahore, Pakistan. Four years of experience across e-commerce operations, product research, social media marketing and AI content creation.
+
+## Services
+- E-commerce operations: order processing, inventory and dispatch coordination, returns and refunds, Shopify store operations
+- Digital marketing: social media strategy, Meta Ads, campaign management, performance analysis
+- AI content: AI-generated videos and images for ads and social media, prompt engineering
+- Research: product research, market and audience research
+
+## Pages
+- [Home](https://kashanemurtaza-portfolio.vercel.app/): overview, services, about, experience, FAQ and contact
+- [Case studies](https://kashanemurtaza-portfolio.vercel.app/work): every project with what was done, skills used and a video
+- [CV (PDF)](https://kashanemurtaza-portfolio.vercel.app/media/Kashan_Murtaza_CV.pdf)
+
+## Contact
+- Email: kashanemurtaza9@gmail.com
+- LinkedIn: https://www.linkedin.com/in/kashanemurtaza
+- Location: Lahore, Pakistan
