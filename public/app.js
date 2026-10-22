@@ -145,7 +145,8 @@
   };
   /* Questions and answers shown on the home page (and read by Google and AI search). Editable in Dashboard, FAQ. */
   var FAQ_DEFAULT = [
-    ['What do you do?', "I'm Kashan Murtaza, an operations and digital marketing specialist based in Lahore, Pakistan. I have four years of experience across e-commerce operations, product research, social media marketing and AI content creation."],
+    ['What do you do?', "I'm Kashan Murtaza, a Business Manager at an e-commerce eyewear brand and an operations and digital marketing specialist based in Lahore, Pakistan. I have four years of experience across e-commerce operations, product research, social media marketing and AI content creation."],
+    ['What is your current role?', 'I work as a Business Manager in e-commerce, where I coordinate day-to-day operations, online store and product listings, orders and customer inquiries, the product catalog and stock, and market and competitor research.'],
     ['What services do you offer?', 'E-commerce operations (order processing, inventory, dispatch, returns and refunds), digital marketing (social media strategy, Meta Ads and campaign management), AI video and image content for ads and social media, and product and market research.'],
     ['What tools do you work with?', 'Shopify for store operations, Meta Ads for paid social campaigns, AI video and image generation tools with prompt engineering, and WhatsApp for customer support.'],
     ['Where are you based?', 'Lahore, Pakistan.'],

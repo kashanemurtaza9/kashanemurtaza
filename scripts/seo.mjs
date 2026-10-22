@@ -31,7 +31,7 @@ const ld = {
   '@context': 'https://schema.org',
   '@graph': [
     {
-      '@type': 'Person', '@id': SITE + '/#person', name: p.fullName || p.name, jobTitle: p.title,
+      '@type': 'Person', '@id': SITE + '/#person', name: p.fullName || p.name, jobTitle: ['Business Manager', p.title].filter(Boolean),
       description: p.intro, email: 'mailto:' + p.email, url: SITE,
       image: SITE + '/media/og.jpg',
       address: { '@type': 'PostalAddress', addressLocality: 'Lahore', addressCountry: 'PK' },
