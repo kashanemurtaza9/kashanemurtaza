@@ -145,12 +145,12 @@
   };
   /* Questions and answers shown on the home page (and read by Google and AI search). Editable in Dashboard, FAQ. */
   var FAQ_DEFAULT = [
-    ['What does Kashan Murtaza do?', 'Kashan Murtaza is an operations and digital marketing specialist based in Lahore, Pakistan, with four years of experience across e-commerce operations, product research, social media marketing and AI content creation.'],
-    ['What services does Kashan offer?', 'E-commerce operations (order processing, inventory, dispatch, returns and refunds), digital marketing (social media strategy, Meta Ads and campaign management), AI video and image content for ads and social media, and product and market research.'],
-    ['What tools does Kashan work with?', 'Shopify for store operations, Meta Ads for paid social campaigns, AI video and image generation tools with prompt engineering, and WhatsApp for customer support.'],
-    ['Where is Kashan based?', 'Lahore, Pakistan.'],
-    ['Can I see examples of his work?', 'Yes. Every project has its own case study on the Work page, with what he did, the skills used and a video.'],
-    ['How can I hire Kashan?', 'Send an email from the contact section at the bottom of this page, or message him on LinkedIn.']
+    ['What do you do?', "I'm Kashan Murtaza, an operations and digital marketing specialist based in Lahore, Pakistan. I have four years of experience across e-commerce operations, product research, social media marketing and AI content creation."],
+    ['What services do you offer?', 'E-commerce operations (order processing, inventory, dispatch, returns and refunds), digital marketing (social media strategy, Meta Ads and campaign management), AI video and image content for ads and social media, and product and market research.'],
+    ['What tools do you work with?', 'Shopify for store operations, Meta Ads for paid social campaigns, AI video and image generation tools with prompt engineering, and WhatsApp for customer support.'],
+    ['Where are you based?', 'Lahore, Pakistan.'],
+    ['Can I see examples of your work?', 'Yes. Every project has its own case study on the Work page, with what I did, the skills I used and a video.'],
+    ['How can I hire you?', 'Send me an email from the contact section at the bottom of this page, or message me on LinkedIn.']
   ];
   /* Built-in covers for projects that have a video but no cover image yet. A cover set in the dashboard always wins. */
   var AUTO_COVERS = { klarity: '/media/img/klarity-cover.webp' };
