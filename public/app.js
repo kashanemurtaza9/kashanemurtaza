@@ -45,11 +45,11 @@
     });
   }
   var CAPS = [
-    ['Operations Management & Workflow Automation', 'Business operations and the workflows behind them: coordinating processes, keeping order flow efficient, and supporting fulfilment and customers day to day.', ['Order management', 'Fulfilment and dispatch', 'Tracking', 'Returns and cancellations', 'Inventory coordination', 'Customer support']],
-    ['Social Media Strategy & Meta Ads', 'Social content, campaign planning and paid advertising, with performance tracked and measured against ROAS.', ['Social media content', 'Campaign planning', 'Meta Ads', 'ROAS and measurement']],
-    ['AI Content Creation & Prompt Engineering', 'AI-assisted video concepts, advertisements and visual campaigns. The focus is storytelling, visual consistency and creative direction for commercial use, not a list of tools.', ['Video concepts', 'Advertisements', 'Prompt design', 'Visual consistency']],
-    ['Content Research & Product Research', 'Research that feeds content planning, product selection, market understanding and positioning, so business decisions rest on more than instinct.', ['Content planning', 'Product selection', 'Market understanding', 'Positioning']],
-    ['AI Tool Integration', 'Applying AI tools to practical workflows and digital projects, including AI-assisted website development as a supporting skill.', ['Workflow use cases', 'Digital projects', 'AI-assisted web builds']]
+    ["E-commerce Operations", "Daily operations from order to delivery: inventory, fulfilment, returns and customer support, run smoothly and on time.", ["Order management", "Inventory", "Fulfilment", "Customer support"]],
+    ["Social Media & Meta Ads", "Social content and paid campaigns, planned around clear goals and measured on results such as ROAS.", ["Content planning", "Meta Ads", "Campaign management", "ROAS"]],
+    ["AI Content Creation", "AI video and visual ads with clear storytelling and a consistent brand look, made for commercial use.", ["AI video", "Ad creatives", "Prompt design", "Brand consistency"]],
+    ["Product & Market Research", "Product, market and competitor research that turns data into confident business decisions.", ["Product selection", "Market research", "Competitor analysis", "Positioning"]],
+    ["AI Workflow Integration", "AI tools built into everyday workflows to save time and raise the quality of output.", ["Workflow automation", "AI tools", "Process improvement"]]
   ];
 
   var ICONS = {
@@ -1304,11 +1304,9 @@
           g.fromTo(el, { y: 40 }, { y: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 94%', toggleActions: TA } });
         });
 
+        /* What I do: each row's title, text and keywords rise in like the rest of the page (About, FAQ, case studies). */
         g.utils.toArray('.cap').forEach(function (row) {
-          var words = splitWords(row.querySelector('h3'));
-          var t = g.timeline({ scrollTrigger: { trigger: row, start: 'top 88%', toggleActions: TA }, defaults: { ease: 'power4.out' } });
-          t.fromTo(words, { yPercent: 118 }, { yPercent: 0, duration: 1.2, stagger: 0.08 })
-            .fromTo(row.querySelectorAll('p, .kw span'), { y: 24 }, { y: 0, duration: 0.9, stagger: 0.05, ease: 'power3.out' }, '-=0.8');
+          g.fromTo(row.querySelectorAll('h3, p, .kw'), { y: 40 }, { y: 0, duration: 1, stagger: 0.08, ease: 'power3.out', scrollTrigger: { trigger: row, start: 'top 92%', toggleActions: TA } });
         });
 
         g.utils.toArray('.about-copy > *').forEach(function (el) {
