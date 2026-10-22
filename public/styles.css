@@ -500,3 +500,11 @@ html.mobile .case-grid { grid-template-columns: 1fr; }
 .faq-item summary .ic { flex: none; transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
 .faq-item[open] summary .ic { transform: rotate(-90deg); }
 .faq-item p { margin: 0 0 clamp(20px, calc(2.6 * var(--vw)), 32px); color: var(--muted); max-width: 70ch; font-size: clamp(15px, calc(1.2 * var(--vw)), 17px); line-height: 1.7; }
+/* What I do: centred rows. */
+#services .cap, #services.narrow .cap { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; padding-left: 0; padding-right: 0; }
+#services .cap:nth-child(even) { padding-left: 0; }
+#services .cap h3 { max-width: 22ch; }
+#services .cap p { margin-inline: auto; }
+#services .cap .kw { justify-content: center; }
+#services .cap::after { transform-origin: center; }
+#services .section-head { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; }
