@@ -32,7 +32,7 @@ const ld = {
   '@context': 'https://schema.org',
   '@graph': [
     {
-      '@type': 'Person', '@id': SITE + '/#person', name: p.fullName || p.name, jobTitle: ['Business Manager', p.title].filter(Boolean),
+      '@type': 'Person', '@id': SITE + '/#person', name: p.fullName || p.name, jobTitle: ['Business Manager', 'E-commerce Operations Manager', 'Digital Marketing Specialist'],
       description: p.intro, email: 'mailto:' + p.email, url: SITE,
       image: SITE + '/media/og.jpg',
       address: { '@type': 'PostalAddress', addressLocality: 'Lahore', addressCountry: 'PK' },
@@ -40,7 +40,8 @@ const ld = {
       sameAs: [...new Set([p.linkedin || 'https://www.linkedin.com/in/kashanemurtaza', p.fiverr, 'https://github.com/kashanemurtaza9'].filter((u) => /^https:\/\//.test(u || '')))],
       worksFor: p.experience && p.experience[0] && /current|present|now/i.test(p.experience[0].period || '') ? { '@type': 'Organization', name: p.experience[0].org } : undefined,
       alumniOf: [{ '@type': 'EducationalOrganization', name: 'CGL' }, { '@type': 'EducationalOrganization', name: 'The Country School' }],
-      hasOccupation: { '@type': 'Occupation', name: p.title, occupationLocation: { '@type': 'City', name: 'Lahore' } },
+      hasOccupation: { '@type': 'Occupation', name: 'Business Manager', occupationLocation: { '@type': 'City', name: 'Lahore' }, skills: String(p.skills || '') },
+      nationality: { '@type': 'Country', name: 'Pakistan' },
       ...(p.photo && /^\/media\//.test(p.photo) ? { image: SITE + p.photo } : {}),
     },
     { '@type': 'ProfilePage', '@id': SITE + '/#profile', url: SITE + '/', name: (p.fullName || p.name) + ' Portfolio', mainEntity: { '@id': SITE + '/#person' } },
