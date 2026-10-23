@@ -8,3 +8,6 @@ CREATE TABLE IF NOT EXISTS site_content (
   version    integer     NOT NULL DEFAULT 1,
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Block Supabase's public API from this table (no policies = no access for anon/authenticated roles).
+ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
