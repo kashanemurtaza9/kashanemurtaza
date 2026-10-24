@@ -1,12 +1,34 @@
 # Kashan Murtaza
 
-> Business Manager in e-commerce (eyewear and optical products), and operations and digital marketing specialist based in Lahore, Pakistan. Four years of experience across e-commerce operations, product research, social media marketing and AI content creation.
+> Business Manager at an e-commerce eyewear brand, and operations and digital marketing specialist based in Lahore, Pakistan. Four years of experience across e-commerce operations, product research, social media marketing and AI content creation. Open to full-time roles in business management and e-commerce operations in Lahore, and to freelance projects online.
+
+## Current role
+- Business Manager in e-commerce (2026 to present): day-to-day operations, online store and product listings, orders and customer inquiries, product catalog and stock, market and competitor research.
+
+## Experience
+- Business Manager, e-commerce eyewear brand (2026 to present)
+- Digital Marketing & AI Content Creator (2026)
+- Operations Manager for two online retail brands in Lahore (2025 to 2026): orders, inventory, fulfilment, returns and customer support
+- Digital Marketing Executive (2023 to 2024)
+- Product Management Executive, then Product Manager (2022 to 2023)
 
 ## Services
 - E-commerce operations: order processing, inventory and dispatch coordination, returns and refunds, Shopify store operations
 - Digital marketing: social media strategy, Meta Ads, campaign management, performance analysis
 - AI content: AI-generated videos and images for ads and social media, prompt engineering
-- Research: product research, market and audience research
+- Research: product research, market and competitor research
+- AI workflow integration: AI tools built into everyday business workflows
+
+## Education
+- Pearson Higher National Diploma (HND) in Business Management, 2025 to 2027 (in progress)
+- Pearson BTEC Level 3 in Business Management, 2022 to 2024
+
+## Frequently asked questions
+- What does an e-commerce operations manager do? Keeps an online store running from order to delivery: orders, inventory, dispatch and couriers, returns and refunds, and customer queries.
+- Does he manage Meta Ads? Yes: planning, running and optimising Facebook and Instagram campaigns around goals such as sales and return on ad spend.
+- What are AI video ads? Product and brand videos made with AI video and image tools instead of a full shoot, so several versions can be produced and tested quickly. He writes the scripts and prompts and edits them into ready-to-run ads.
+- Does he work with Shopify? Yes: listings, orders, inventory and day-to-day store management.
+- Where is he based? Lahore, Pakistan; on-site in Lahore and remote elsewhere.
 
 ## Pages
 - [Home](https://kashanemurtaza-portfolio.vercel.app/): overview, services, about, experience, FAQ and contact
